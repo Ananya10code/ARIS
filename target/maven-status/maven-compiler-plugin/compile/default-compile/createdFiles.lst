@@ -26,6 +26,7 @@ com\aris\probe\DemoController.class
 com\aris\probe\DashboardController.class
 com\aris\security\SecurityConfig.class
 com\aris\auth\controller\ProtectedController.class
+com\aris\probe\ProbeHistoryController.class
 com\aris\service\ServiceService.class
 com\aris\security\JwtAuthenticationFilter.class
 com\aris\auth\repository\UserRepository.class
@@ -34,7 +35,9 @@ com\aris\security\JwtService.class
 com\aris\probe\DashboardController$Point.class
 com\aris\incident\controller\IncidentController.class
 com\aris\monitor\repository\MonitorRepository.class
+com\aris\probe\MonitorSchedulerService.class
 com\aris\ecom\PaymentController.class
+com\aris\probe\ProbeService.class
 com\aris\incident\Incident.class
 com\aris\probe\WorkspaceController$1.class
 com\aris\service\repository\ServiceRepository.class

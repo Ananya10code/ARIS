@@ -6,6 +6,13 @@ import engine
 app = FastAPI(title="ARIS AI Engine")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
+@app.get("/")
+def home():
+    return {
+        "status": "online",
+        "service": "ARIS AI Engine",
+        "docs_url": "/docs"
+    }
 
 @app.get("/api/analysis")
 def analysis(project_id: int = 1):
