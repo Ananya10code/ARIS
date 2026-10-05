@@ -1,0 +1,241 @@
+# ARIS — Autonomous Reliability & Intelligence System
+
+[![Java](https://img.shields.io/badge/Java-24-blue.svg)](https://openjdk.org/)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.1.1-brightgreen.svg)](https://spring.io/projects/spring-boot)
+[![Python](https://img.shields.io/badge/Python-3.12-yellow.svg)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.110+-teal.svg)](https://fastapi.tiangolo.com/)
+[![scikit-learn](https://img.shields.io/badge/scikit--learn-Isolation%20Forest-orange.svg)](https://scikit-learn.org/)
+[![License](https://img.shields.io/badge/License-Apache%202.0-lightgrey.svg)](LICENSE)
+
+**ARIS** is an autonomous site reliability engineering (SRE) and observability platform designed to detect, diagnose, and remediate microservice failures without human intervention.
+
+It continuously collects multi-dimensional telemetry, trains unsupervised machine learning models (**Isolation Forest**) on baseline behavior, identifies abnormal patterns, extracts stack traces directly from runtime application logs, pinpoints the root-cause function and line number, and generates Before $\rightarrow$ After code patches with automated recovery verification.
+
+---
+
+## ⚡ Closed-Loop Reliability Architecture
+
+$$\mathbf{Historical\ Telemetry} \longrightarrow \mathbf{Feature\ Engineering} \longrightarrow \mathbf{Isolation\ Forest} \longrightarrow \mathbf{Anomaly\ Score} \longrightarrow \mathbf{Incident} \longrightarrow \mathbf{AI\ Root\ Cause} \longrightarrow \mathbf{Fix\ Recommendation}$$
+
+```text
+[Live Application Telemetry]
+  ├── Latency (mean, peak, latest ms)
+  ├── Request Rate (throughput in req/s)
+  ├── Error Rate (HTTP 4xx / 5xx ratio)
+  ├── Host Utilization (CPU % & Memory %)
+  ├── Network Timeouts (HTTP 0 socket drops)
+  └── Quota Violations (HTTP 429 Rate-Limits)
+               │
+               ▼
+[Feature Engineering & Isolation Forest]
+  ├── Normalizes 9-dimensional telemetry feature vector
+  ├── Evaluates multi-tree isolation path lengths (200 trees)
+  └── Computes raw anomaly score & z-score deviation evidence tags
+               │
+               ▼ (Anomaly Score ≥ 0.60)
+[Incident Creation & Escalation]
+  ├── Emits unique Incident ID (INC-xxx) bound to Project ID
+  ├── Evaluates confidence percentage (75% - 99%)
+  └── Assigns severity rating (CRITICAL, HIGH, MEDIUM)
+               │
+               ▼
+[AI Root Cause & Code Localization]
+  ├── Tails project runtime log (logs/aris.log)
+  ├── Parses unhandled exception stack trace
+  └── Identifies failing class, method, source file, and line number
+               │
+               ▼
+[Fix Recommendation & Code Patching]
+  ├── Generates step-by-step SRE remediation checklist
+  ├── Synthesizes Before → After unified code patch diff
+  ├── Developer reviews & applies patch with [✓ Approve & Apply Patch]
+  └── Live prober verifies health normalization → Incident RESOLVED
+```
+
+---
+
+## 🚀 Key Features
+
+* **Dynamic Multi-Project Architecture (Zero Hardcoding)**: Supports arbitrary target projects and microservices created at runtime. Every project receives an auto-generated API Key (`aris_live_...`), separate telemetry streams, and dedicated code diagnostics.
+* **Strict Project Ownership & JWT Security**: Projects belong strictly to the authenticated user's ID resolved from the Spring Security JWT context. Cross-user access to projects, metrics, files, and patches is prohibited.
+* **Multi-Dimensional Anomaly Detection**: Isolation Forest model trained on 7 distinct telemetry categories: Latency, Request Rate, Error Rate, CPU, Memory, Timeouts, and Rate-limit 429s.
+* **Interactive Live Prober**: Includes an on-demand `[▶ Test Now]` console that sends probe requests to endpoints and prints response snippets, round-trip latency, and status codes in real time.
+* **Integrated Source Explorer & Code Editor**: In-browser file explorer allowing developers to inspect source code and jump directly to the exact line number of captured stack traces.
+* **Self-Healing Recovery Verification**: Live monitoring validates when an endpoint returns to 200 OK after patch deployment or fault resolution, transitioning incidents from `ACTIVE` to `RESOLVED`.
+
+---
+
+## 🛠️ Technology Stack
+
+| Layer | Technology | Description |
+| :--- | :--- | :--- |
+| **Backend & APM** | **Java 24** / **Spring Boot 4.1.1** | High-performance APM platform, probe scheduler, JWT security, and file patcher. |
+| **Database** | **H2 Database (In-Memory)** | Zero-dependency standalone database running in PostgreSQL compatibility mode. |
+| **ML Engine** | **Python 3.12** / **scikit-learn** | Unsupervised Isolation Forest model for multidimensional anomaly scoring. |
+| **AI Web Service** | **FastAPI** / **Uvicorn** | Asynchronous REST microservice exposing anomaly analysis, history, and patch synthesis. |
+| **Frontend UI** | **Vanilla HTML5 / ES6+ JavaScript** | Zero-framework, high-speed SPA with modern IDE dark theme and live polling. |
+| **Visualization** | **Chart.js v4.4.1** | Dynamic multi-series time-series charts rendering real-time API latency trends. |
+
+---
+
+## 📁 Repository Structure
+
+```text
+aris-patch-v2/
+├── ai-engine/                               # Python ML & Anomaly Detection Microservice
+│   ├── models/                              # Serialized model weights (.joblib)
+│   │   ├── api.joblib                       # Trained API anomaly model & baselines
+│   │   └── host.joblib                      # Trained Host CPU/RAM model
+│   ├── engine.py                            # Core analysis engine, log parser, patch generator
+│   ├── main.py                              # FastAPI REST service (/api/analysis, /api/history)
+│   ├── train.py                             # Isolation Forest training script & feature engineer
+│   └── requirements.txt                     # Python dependencies (fastapi, scikit-learn, joblib)
+├── src/main/java/com/aris/                  # Spring Boot Backend Source Code
+│   ├── auth/                                # Existing JWT Authentication & User entities
+│   │   ├── AuthService.java                 # Login & Registration business logic
+│   │   ├── User.java                        # User entity (ID, email, password, role)
+│   │   └── controller/AuthController.java   # POST /api/auth/login, POST /api/auth/register
+│   ├── config/                              # Configuration & Seeders
+│   │   └── DemoSeeder.java                  # Seeds Demo Project & E-Commerce Backend
+│   ├── ecom/                                # Target E-Commerce Microservices
+│   │   ├── OrderController.java             # /api/orders (Order processing section)
+│   │   ├── PaymentController.java           # /api/payment (Payment gateway with fault injection)
+│   │   └── ProductController.java           # /api/products (Product catalog section)
+│   ├── incident/                            # Incident tracking & lifecycle
+│   │   ├── Incident.java                    # Incident entity (ACTIVE / RESOLVED)
+│   │   └── controller/IncidentController.java
+│   ├── monitor/                             # Monitor configurations and intervals
+│   ├── probe/                               # Telemetry & System Endpoints
+│   │   ├── DashboardController.java         # /api/dashboard (Monitors, charts, host stats)
+│   │   ├── DemoController.java              # /api/demo (Latency spike & connection flaky tests)
+│   │   ├── ProbeScheduler.java              # Background HTTP probe worker
+│   │   └── WorkspaceController.java         # /api/workspace (Overview, files, patching)
+│   ├── project/                             # Project ownership & metadata
+│   │   ├── Project.java                     # Project entity (owner, apiKey, sourcePath, logPath)
+│   │   ├── ProjectService.java              # Scoped lookups and ownership validation
+│   │   └── controller/ProjectController.java# GET /api/projects, POST /api/projects
+│   └── security/                            # Spring Security & Authorization
+│       ├── JwtAuthenticationFilter.java     # Validates Authorization: Bearer tokens
+│       ├── JwtService.java                  # Token generation and claim extraction
+│       ├── SecurityConfig.java              # Filter chain and public route rules
+│       └── SecurityUtils.java               # Resolves authenticated user from JWT context
+├── src/main/resources/
+│   ├── application.yml                      # Application settings & logging output configuration
+│   └── static/
+│       └── index.html                       # Frontend SPA (Level 1 Overview & Level 2 Project Dock)
+├── logs/
+│   └── aris.log                             # Runtime application log (scanned for stack traces)
+├── ARCHITECTURE.md                          # Comprehensive technical design specification
+├── pom.xml                                  # Maven dependencies & build configuration
+└── README.md                                # Project documentation
+```
+
+---
+
+## 🚦 Getting Started
+
+### Prerequisites
+
+* **Java JDK 24** (or OpenJDK 21+)
+* **Python 3.10+** (with virtual environment support)
+* **Maven 3.9+** (or use the included `./mvnw.cmd` wrapper)
+
+---
+
+### Step 1: Start the Spring Boot Backend
+
+Open a terminal in the project root:
+
+```bash
+# On Windows PowerShell
+$env:JAVA_HOME = "C:\Users\DeLL\.jdks\openjdk-24.0.2+12-54"
+.\mvnw.cmd spring-boot:run
+```
+
+* The backend initializes on port `8080`.
+* The in-memory H2 database auto-seeds the default user and reference projects.
+* Application logs stream to `logs/aris.log`.
+
+---
+
+### Step 2: Start the FastAPI AI Engine
+
+Open a second terminal in `ai-engine/`:
+
+```bash
+cd ai-engine
+
+# Activate Python virtual environment and run Uvicorn
+python -m uvicorn main:app --host 0.0.0.0 --port 8000
+```
+
+* The AI Engine starts on port `8000`.
+* If models are missing, it automatically invokes `train.py` to fit the Isolation Forest models on baseline telemetry.
+
+---
+
+### Step 3: Open the Dashboard
+
+Navigate to [http://localhost:8080/](http://localhost:8080/) in any modern web browser.
+
+#### Default Seed Credentials:
+* **Email**: `demo@aris.dev`
+* **Password**: `demo1234`
+
+---
+
+## 🧪 Interactive Fault Simulation & Self-Healing Walkthrough
+
+To experience the complete autonomous reliability cycle:
+
+1. **Access the Overview**: Log in and select the **E-Commerce Backend** project card.
+2. **Observe Baseline Operation**:
+   * Navigate to **Tab 1 (Health & Telemetry)**: Endpoints `/api/products`, `/api/orders`, and `/api/payment` display `UP (200 OK)` with low latency (~2ms) and 100% Health.
+3. **Trigger Fault Simulation**:
+   * Click **`⚡ Simulate 500 Fault`** in the top navigation bar (or execute `POST http://localhost:8080/api/demo/payment/toggle-fault`).
+   * `/api/payment` begins throwing an unhandled `java.lang.IllegalStateException: Payment provider gateway error: connection pool exhausted to bank switch`.
+4. **Inspect Automated Anomaly Detection**:
+   * **Tab 3 (AI Anomalies)**: Isolation Forest generates an anomaly score (> 0.70) and flags the multi-dimensional deviation: `error_rate=0.5 (+6.5 std from baseline)`.
+5. **Inspect Root Cause & Code Localization**:
+   * **Tab 4 (Root Cause & AI)**: The AI engine parses `logs/aris.log` and isolates:
+     * **Class**: `PaymentController`
+     * **Function**: `processPayment`
+     * **File**: `com/aris/ecom/PaymentController.java`
+     * **Line**: `20`
+   * Click **`[Open in Editor]`** to jump directly to the code viewer with line 20 highlighted in red.
+6. **Review Suggested Patch**:
+   * **Tab 5 (AI Fix & Incident Timeline)**: Inspect the synthesized Before $\rightarrow$ After diff block implementing circuit breaker fallback routing.
+7. **Approve Patch & Verify Recovery**:
+   * Click **`[✓ Approve & Apply Patch]`** or click **`⚡ Clear Fault`**.
+   * Switch to **Tab 2 (API Testing / Monitoring)** and click **`[▶ Test Now]`** on `/api/payment`.
+   * The probe console returns `HTTP 200 OK`.
+   * In **Tab 5**, the incident status automatically transitions from **`ACTIVE`** $\rightarrow$ **`RESOLVED`**, and the project health score restores to 100%.
+
+---
+
+## 🔌 API Reference Summary
+
+### Authentication Endpoints
+* `POST /api/auth/register` — Register a new developer account.
+* `POST /api/auth/login` — Authenticate and receive a signed JWT bearer token.
+
+### Project & Workspace Management
+* `GET /api/projects` — Retrieve all projects owned by the authenticated user.
+* `POST /api/projects` — Create a new project (automatically bound to the caller's JWT user ID).
+* `GET /api/projects/{id}` — Fetch project details (verifies user ownership; returns 403 on mismatch).
+* `GET /api/workspace/overview` — System-wide telemetry aggregation across the caller's owned projects.
+* `POST /api/workspace/projects/{id}/endpoints` — Dynamically register a new API endpoint probe.
+* `POST /api/workspace/monitors/{id}/test` — Trigger an immediate on-demand manual probe.
+* `POST /api/workspace/projects/{id}/patch` — Apply a developer-approved code diff to a project source file.
+
+### AI Engine Endpoints
+* `GET http://localhost:8000/api/analysis?project_id={id}` — Run Isolation Forest inference, stack trace analysis, and patch synthesis.
+* `GET http://localhost:8000/api/history?project_id={id}` — Fetch historical incident timeline and recovery status.
+
+---
+
+## 📄 License
+
+This project is licensed under the Apache 2.0 License.
+#   A R I S  
+ 

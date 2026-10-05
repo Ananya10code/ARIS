@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: aris-backend
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:h2:mem:aris;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=PostgreSQL}
+    driver-class-name: ${SPRING_DATASOURCE_DRIVER:org.h2.Driver}
+    username: ${SPRING_DATASOURCE_USERNAME:sa}
+    password: ${SPRING_DATASOURCE_PASSWORD:}
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+
+logging:
+  file:
+    name: logs/aris.log
+
+server:
+  port: 8080
+
+aris:
+  ai-engine:
+    url: ${ARIS_AI_ENGINE_URL:http://localhost:8000}
