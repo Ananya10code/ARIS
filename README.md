@@ -7,9 +7,9 @@
 [![scikit-learn](https://img.shields.io/badge/scikit--learn-Isolation%20Forest-orange.svg)](https://scikit-learn.org/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-lightgrey.svg)](LICENSE)
 
-**ARIS** is an autonomous site reliability engineering (SRE) and observability platform designed to detect, diagnose, and remediate microservice failures without human intervention.
+**ARIS** is an autonomous site reliability engineering (SRE) and observability platform designed to monitor applications, detect abnormal behavior, diagnose incidents, and provide developer-approved remediation suggestions.
 
-It continuously collects multi-dimensional telemetry, trains unsupervised machine learning models (**Isolation Forest**) on baseline behavior, identifies abnormal patterns, extracts stack traces directly from runtime application logs, pinpoints the root-cause function and line number, and generates Before $\rightarrow$ After code patches with automated recovery verification.
+It continuously collects multi-dimensional telemetry, trains unsupervised machine learning models (**Isolation Forest**) on baseline behavior, identifies abnormal patterns, extracts stack traces directly from runtime application logs, pinpoints the root-cause function and line number, and generates proposed Before $\rightarrow$ After code patches for developer review and approval. Live monitoring can then verify whether the affected endpoint has recovered.
 
 ---
 
@@ -28,14 +28,14 @@ $$\mathbf{Historical\ Telemetry} \longrightarrow \mathbf{Feature\ Engineering} \
                │
                ▼
 [Feature Engineering & Isolation Forest]
-  ├── Normalizes 9-dimensional telemetry feature vector
-  ├── Evaluates multi-tree isolation path lengths (200 trees)
-  └── Computes raw anomaly score & z-score deviation evidence tags
+  ├── Builds the telemetry feature vector used by the trained model
+  ├── Scores current behavior against learned baseline patterns
+  └── Produces an anomaly score and supporting deviation evidence
                │
-               ▼ (Anomaly Score ≥ 0.60)
-[Incident Creation & Escalation]
+               ▼
+[Incident Detection]
   ├── Emits unique Incident ID (INC-xxx) bound to Project ID
-  ├── Evaluates confidence percentage (75% - 99%)
+  ├── Records anomaly score and application-level confidence display
   └── Assigns severity rating (CRITICAL, HIGH, MEDIUM)
                │
                ▼
@@ -47,8 +47,8 @@ $$\mathbf{Historical\ Telemetry} \longrightarrow \mathbf{Feature\ Engineering} \
                ▼
 [Fix Recommendation & Code Patching]
   ├── Generates step-by-step SRE remediation checklist
-  ├── Synthesizes Before → After unified code patch diff
-  ├── Developer reviews & applies patch with [✓ Approve & Apply Patch]
+  ├── Produces a proposed Before → After code diff for supported cases
+  ├── Developer reviews and approves the proposed patch
   └── Live prober verifies health normalization → Incident RESOLVED
 ```
 
@@ -58,10 +58,10 @@ $$\mathbf{Historical\ Telemetry} \longrightarrow \mathbf{Feature\ Engineering} \
 
 * **Dynamic Multi-Project Architecture (Zero Hardcoding)**: Supports arbitrary target projects and microservices created at runtime. Every project receives an auto-generated API Key (`aris_live_...`), separate telemetry streams, and dedicated code diagnostics.
 * **Strict Project Ownership & JWT Security**: Projects belong strictly to the authenticated user's ID resolved from the Spring Security JWT context. Cross-user access to projects, metrics, files, and patches is prohibited.
-* **Multi-Dimensional Anomaly Detection**: Isolation Forest model trained on 7 distinct telemetry categories: Latency, Request Rate, Error Rate, CPU, Memory, Timeouts, and Rate-limit 429s.
+* **Multi-Dimensional Anomaly Detection**: Uses an Isolation Forest model over application and host telemetry features, including latency, request rate, error rate, CPU, memory, timeouts, and HTTP 429 rate-limit behavior.
 * **Interactive Live Prober**: Includes an on-demand `[▶ Test Now]` console that sends probe requests to endpoints and prints response snippets, round-trip latency, and status codes in real time.
 * **Integrated Source Explorer & Code Editor**: In-browser file explorer allowing developers to inspect source code and jump directly to the exact line number of captured stack traces.
-* **Self-Healing Recovery Verification**: Live monitoring validates when an endpoint returns to 200 OK after patch deployment or fault resolution, transitioning incidents from `ACTIVE` to `RESOLVED`.
+* **Recovery Verification**: Live monitoring/probing can verify when an affected endpoint returns to a healthy response after a patch is applied or a simulated fault is cleared, allowing incidents to transition from `ACTIVE` to `RESOLVED`.
 
 ---
 
@@ -213,6 +213,27 @@ To experience the complete autonomous reliability cycle:
 
 ---
 
+## 🤖 Machine Learning & AI Clarifications
+
+### Anomaly Detection
+ARIS uses **Isolation Forest**, an unsupervised anomaly-detection algorithm. It evaluates current telemetry against learned behavior and produces an anomaly score. The anomaly score is **not model accuracy**.
+
+Any confidence value displayed by the dashboard should be interpreted as an application-level confidence/strength indicator from the anomaly analysis, **not as a calibrated probability or accuracy percentage**.
+
+### Root Cause Analysis
+Isolation Forest identifies **unusual behavior**; it does not determine an exact source-code line by itself. ARIS uses runtime logs and available exception stack traces to locate the relevant class, method, file, and line. Endpoint/controller mappings can provide a fallback when stack-trace information is unavailable.
+
+### Recommendations and Patches
+ARIS provides remediation recommendations using incident context and supported remediation logic. Supported cases can produce a proposed **Before → After** code diff. Patches require **developer review and approval** before application and should not be described as guaranteed autonomous or guaranteed-correct code generation.
+
+### Evaluation Metrics
+Accuracy, precision, recall, and F1 values from synthetic or simulated evaluation data describe that evaluation experiment only. They should not be presented as production model accuracy unless evaluated against representative real ARIS telemetry with appropriate ground-truth labels.
+
+### Recovery
+After a patch is approved/applied or a simulated fault is cleared, ARIS uses live probing and telemetry to check whether the affected endpoint has recovered. Successful health checks can move an incident from `ACTIVE` to `RESOLVED`.
+
+---
+
 ## 🔌 API Reference Summary
 
 ### Authentication Endpoints
@@ -237,5 +258,4 @@ To experience the complete autonomous reliability cycle:
 ## 📄 License
 
 This project is licensed under the Apache 2.0 License.
-#   A R I S  
- 
+#
