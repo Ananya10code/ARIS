@@ -16,19 +16,34 @@ public class AuthService {
         this.jwtService = jwtService;
     }
     public User register(String name, String email, String password) {
-        if (userRepository.existsByEmail(email)) {
+        String cleanEmail = email != null ? email.trim() : "";
+        String cleanName = name != null ? name.trim() : "Developer";
+        if (cleanEmail.isEmpty() || password == null || password.isBlank()) {
+            throw new RuntimeException("Email and password are required");
+        }
+        if (userRepository.existsByEmailIgnoreCase(cleanEmail)) {
             throw new RuntimeException("Email already registered");
         }
         User user = new User(
-                name,
-                email,
+                cleanName,
+                cleanEmail,
                 passwordEncoder.encode(password),
                 Role.DEVELOPER
         );
         return userRepository.save(user);
     }
     public LoginResponse login(String email, String password) {
-        User user = userRepository.findByEmail(email)
+        String cleanEmail = email != null ? email.trim() : "";
+        User user = userRepository.findByEmailIgnoreCase(cleanEmail)
+                .or(() -> {
+                    if ("rakshit".equalsIgnoreCase(cleanEmail)) {
+                        return userRepository.findByEmailIgnoreCase("rakshit@aris.dev");
+                    }
+                    if ("rakshit@aris.dev".equalsIgnoreCase(cleanEmail)) {
+                        return userRepository.findByEmailIgnoreCase("rakshit");
+                    }
+                    return java.util.Optional.empty();
+                })
                 .orElseThrow(() ->
                         new RuntimeException("Invalid email or password"));
         if (!passwordEncoder.matches(password, user.getPassword())) {

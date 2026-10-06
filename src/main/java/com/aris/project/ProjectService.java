@@ -26,7 +26,7 @@ public class ProjectService {
     }
 
     public Project createProject(String name, String description, String sourcePath, String logPath, String email) {
-        User owner = userRepository.findByEmail(email)
+        User owner = userRepository.findByEmailIgnoreCase(email)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found: " + email));
 
         Project project = new Project(name, description, owner);
@@ -44,7 +44,7 @@ public class ProjectService {
      * Returns ONLY the projects belonging to the authenticated user ID.
      */
     public List<Project> getMyProjects(String email) {
-        User owner = userRepository.findByEmail(email)
+        User owner = userRepository.findByEmailIgnoreCase(email)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found: " + email));
         return projectRepository.findByOwnerId(owner.getId());
     }
@@ -54,7 +54,7 @@ public class ProjectService {
      * Throws 403 FORBIDDEN if the user does not own the project.
      */
     public Project getProjectForUser(Long projectId, String email) {
-        User user = userRepository.findByEmail(email)
+        User user = userRepository.findByEmailIgnoreCase(email)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found: " + email));
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project #" + projectId + " not found"));

@@ -14,6 +14,7 @@ com\aris\service\controller\ServiceController.class
 com\aris\ecom\ProductController.class
 com\aris\project\ProjectService.class
 com\aris\project\Project.class
+com\aris\config\WebClientConfig.class
 com\aris\probe\WorkspaceController.class
 com\aris\auth\Role.class
 com\aris\auth\LoginRequest.class

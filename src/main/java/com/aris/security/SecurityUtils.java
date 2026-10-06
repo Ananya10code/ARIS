@@ -34,21 +34,42 @@ public class SecurityUtils {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Full authentication is required to access this resource");
         }
         String email = auth.getName();
-        return userRepository.findByEmail(email)
+        return userRepository.findByEmailIgnoreCase(email)
+                .or(() -> {
+                    if ("rakshit".equalsIgnoreCase(email)) {
+                        return userRepository.findByEmailIgnoreCase("rakshit@aris.dev");
+                    }
+                    if ("rakshit@aris.dev".equalsIgnoreCase(email)) {
+                        return userRepository.findByEmailIgnoreCase("rakshit");
+                    }
+                    return java.util.Optional.empty();
+                })
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Authenticated user not found: " + email));
     }
 
     /**
-     * Resolves the current authenticated user, or falls back to the default seeded demo admin
-     * if unauthenticated (e.g. for development or demo access when no JWT is supplied).
+     * Resolves the current authenticated user, or falls back to the default seeded admin
+     * if unauthenticated (e.g. for background internal workers or ai-engine when no JWT is supplied).
      */
     public User getCurrentUserOrFallback() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal())) {
-            return userRepository.findByEmail(auth.getName())
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Authenticated user not found: " + auth.getName()));
+            String email = auth.getName();
+            return userRepository.findByEmailIgnoreCase(email)
+                    .or(() -> {
+                        if ("rakshit".equalsIgnoreCase(email)) {
+                            return userRepository.findByEmailIgnoreCase("rakshit@aris.dev");
+                        }
+                        if ("rakshit@aris.dev".equalsIgnoreCase(email)) {
+                            return userRepository.findByEmailIgnoreCase("rakshit");
+                        }
+                        return java.util.Optional.empty();
+                    })
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Authenticated user not found: " + email));
         }
-        return userRepository.findByEmail("demo@aris.dev")
+        return userRepository.findByEmailIgnoreCase("rakshit")
+                .or(() -> userRepository.findByEmailIgnoreCase("rakshit@aris.dev"))
+                .or(() -> userRepository.findByEmailIgnoreCase("demo@aris.dev"))
                 .orElseGet(() -> userRepository.findAll().stream().findFirst()
                         .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "No users registered")));
     }

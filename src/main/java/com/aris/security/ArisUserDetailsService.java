@@ -14,11 +14,20 @@ public class ArisUserDetailsService implements UserDetailsService {
         this.userRepository = userRepository;
     }
     @Override
-    public UserDetails loadUserByUsername(String email)
-            throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(email)
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        String clean = email != null ? email.trim() : "";
+        User user = userRepository.findByEmailIgnoreCase(clean)
+                .or(() -> {
+                    if ("rakshit".equalsIgnoreCase(clean)) {
+                        return userRepository.findByEmailIgnoreCase("rakshit@aris.dev");
+                    }
+                    if ("rakshit@aris.dev".equalsIgnoreCase(clean)) {
+                        return userRepository.findByEmailIgnoreCase("rakshit");
+                    }
+                    return java.util.Optional.empty();
+                })
                 .orElseThrow(() ->
-                        new UsernameNotFoundException("User not found"));
+                        new UsernameNotFoundException("User not found: " + email));
         return new org.springframework.security.core.userdetails.User(
                 user.getEmail(),
                 user.getPassword(),

@@ -42,8 +42,24 @@ public class DemoSeeder implements CommandLineRunner {
         String src = Path.of("src/main/java").toAbsolutePath().toString();
         String log = Path.of("logs/aris.log").toAbsolutePath().toString();
 
+        // Ensure admin user 'rakshit' exists with password 'admin123'
+        User u = users.findByEmailIgnoreCase("rakshit")
+                .or(() -> users.findByEmailIgnoreCase("rakshit@aris.dev"))
+                .orElseGet(() -> users.save(new User("Rakshit", "rakshit", encoder.encode("admin123"), Role.ADMIN)));
+
+        if (!encoder.matches("admin123", u.getPassword())) {
+            u.setPassword(encoder.encode("admin123"));
+            u.setRole(Role.ADMIN);
+            u = users.save(u);
+        }
+
+        final User adminUser = u;
         projects.findAll().forEach(p -> {
             boolean changed = false;
+            if (p.getOwner() == null || !p.getOwner().getId().equals(adminUser.getId())) {
+                p.setOwner(adminUser);
+                changed = true;
+            }
             if (p.getSourcePath() == null || p.getSourcePath().isBlank()) {
                 p.setSourcePath(src);
                 changed = true;
@@ -57,11 +73,8 @@ public class DemoSeeder implements CommandLineRunner {
 
         if (monitors.count() > 0) return;
 
-        User u = users.findByEmail("demo@aris.dev")
-                .orElseGet(() -> users.save(new User("Demo Admin", "demo@aris.dev", encoder.encode("demo1234"), Role.ADMIN)));
-
         // 1. Seed Demo Project
-        Project demo = new Project("Demo Project", "System health and latency benchmarks", u);
+        Project demo = new Project("Demo Project", "System health and latency benchmarks", adminUser);
         demo.setSourcePath(src);
         demo.setLogPath(log);
         Project p1 = projects.save(demo);
@@ -71,7 +84,7 @@ public class DemoSeeder implements CommandLineRunner {
         monitors.save(new Monitor("Flaky API", "/api/demo/flaky", "GET", 5, 5, true, s1));
 
         // 2. Seed E-Commerce Backend (User's production-style example)
-        Project ecom = new Project("E-Commerce Backend", "Production microservices: Catalog, Orders, Payments", u);
+        Project ecom = new Project("E-Commerce Backend", "Production microservices: Catalog, Orders, Payments", adminUser);
         ecom.setSourcePath(src);
         ecom.setLogPath(log);
         Project p2 = projects.save(ecom);

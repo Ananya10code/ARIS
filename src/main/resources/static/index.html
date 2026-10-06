@@ -4,284 +4,1078 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ARIS | Autonomous Reliability &amp; Intelligence System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
 :root {
-  --bg: #16181d; --card: #1f232b; --side: #1a1d24; --bar: #252932; --line: #333842;
-  --tx: #abb2bf; --tx-bright: #f0f3f8; --mut: #636d83;
-  --ok: #98c379; --warn: #e5c07b; --bad: #e06c75; --blue: #61afef; --purple: #c678dd;
+  --bg: #0d1117;
+  --bg-subtle: #161b22;
+  --card: #1b2028;
+  --card-hover: #222834;
+  --side: #12161d;
+  --bar: #161b22;
+  --line: #30363d;
+  --line-light: rgba(255, 255, 255, 0.08);
+  --tx: #c9d1d9;
+  --tx-bright: #f0f6fc;
+  --mut: #8b949e;
+  --ok: #3fb950;
+  --ok-bg: rgba(63, 185, 80, 0.15);
+  --warn: #d29922;
+  --warn-bg: rgba(210, 153, 34, 0.15);
+  --bad: #f85149;
+  --bad-bg: rgba(248, 81, 73, 0.15);
+  --blue: #58a6ff;
+  --blue-bg: rgba(88, 166, 255, 0.15);
+  --purple: #bc8cff;
+  --purple-bg: rgba(188, 140, 255, 0.15);
+  --accent: #2f81f7;
+  --accent-glow: rgba(47, 129, 247, 0.35);
 }
+
 * { box-sizing: border-box; }
-html, body { height: 100%; margin: 0; }
-body { background: var(--bg); color: var(--tx); font: 13px system-ui, -apple-system, sans-serif; display: flex; flex-direction: column; overflow: hidden; }
+html, body { height: 100%; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--tx);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
 
-/* Global Buttons & Badges */
-button { font: inherit; color: #fff; background: #0e639c; border: 0; border-radius: 4px; padding: 5px 12px; cursor: pointer; transition: all .15s ease; display: inline-flex; align-items: center; gap: 6px; }
-button:hover { background: #1177bb; }
-button.g { background: #2c313a; color: var(--tx); border: 1px solid var(--line); } button.g:hover { background: #353b45; color: #fff; }
-button.success { background: #2ea44f; } button.success:hover { background: #2c974b; }
-button.warn { background: #d19a66; color: #000; } button.warn:hover { background: #e5c07b; }
-button.danger { background: #d73a49; } button.danger:hover { background: #cb2431; }
-button.sm { padding: 2px 8px; font-size: 11px; }
+/* Typography & Links */
+h1, h2, h3, h4, h5 { color: var(--tx-bright); font-weight: 600; margin: 0; }
+a { color: var(--blue); text-decoration: none; cursor: pointer; }
+a:hover { text-decoration: underline; }
+code, pre { font-family: 'JetBrains Mono', Consolas, monospace; }
 
-.badge { font-size: 11px; padding: 2px 7px; border-radius: 12px; border: 1px solid var(--line); background: var(--bar); color: var(--tx-bright); }
-.badge.key { font-family: Consolas, monospace; color: var(--purple); cursor: pointer; border-color: rgba(198,120,221,.4); background: rgba(198,120,221,.1); }
-.badge.key:hover { background: rgba(198,120,221,.25); }
-.score-badge { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 12px; font-weight: 700; font-size: 11px; background: rgba(152,195,121,.15); color: var(--ok); border: 1px solid var(--ok); }
-.score-badge.warn { background: rgba(229,192,123,.15); color: var(--warn); border-color: var(--warn); }
-.score-badge.bad { background: rgba(224,108,117,.15); color: var(--bad); border-color: var(--bad); }
+/* Buttons */
+button {
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  color: #fff;
+  background: #238636;
+  border: 1px solid rgba(240, 246, 252, 0.1);
+  border-radius: 6px;
+  padding: 6px 14px;
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  user-select: none;
+}
+button:hover { background: #2ea043; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(46, 160, 67, 0.25); }
+button:active { transform: translateY(0); }
+button.primary { background: #1f6feb; }
+button.primary:hover { background: #388bfd; box-shadow: 0 4px 14px var(--accent-glow); }
+button.g { background: #21262d; color: var(--tx); border-color: var(--line); }
+button.g:hover { background: #30363d; color: var(--tx-bright); border-color: #8b949e; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+button.success { background: #238636; }
+button.success:hover { background: #2ea043; }
+button.warn { background: #9e6a03; color: #fff; }
+button.warn:hover { background: #bb8009; }
+button.danger { background: #da3633; color: #fff; }
+button.danger:hover { background: #f85149; }
+button.sm { padding: 4px 10px; font-size: 11px; border-radius: 5px; }
 
-/* Top Navigation */
-#top { height: 46px; background: var(--bar); display: flex; align-items: center; gap: 14px; padding: 0 16px; border-bottom: 1px solid var(--line); flex-shrink: 0; }
-#top .brand { font-weight: 800; letter-spacing: 1.5px; color: #fff; font-size: 15px; display: flex; align-items: center; gap: 8px; cursor: pointer; }
-.sp { flex: 1; }
+/* Badges & Chips */
+.badge {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--bg-subtle);
+  color: var(--tx-bright);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.badge.key {
+  font-family: 'JetBrains Mono', Consolas, monospace;
+  color: var(--purple);
+  cursor: pointer;
+  border-color: rgba(188, 140, 255, 0.3);
+  background: var(--purple-bg);
+}
+.badge.key:hover { background: rgba(188, 140, 255, 0.25); }
+.badge.role-admin { background: rgba(210, 153, 34, 0.2); color: #f2cc60; border-color: rgba(210, 153, 34, 0.5); font-weight: 600; }
+.badge.role-dev { background: rgba(88, 166, 255, 0.2); color: #79c0ff; border-color: rgba(88, 166, 255, 0.5); font-weight: 600; }
+.score-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 14px;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.3px;
+  background: var(--ok-bg);
+  color: var(--ok);
+  border: 1px solid var(--ok);
+}
+.score-badge.warn { background: var(--warn-bg); color: var(--warn); border-color: var(--warn); }
+.score-badge.bad { background: var(--bad-bg); color: var(--bad); border-color: var(--bad); }
 
-/* Status Classes */
+/* Status tags */
 .UP { color: var(--ok); font-weight: 600; }
 .SLOW { color: var(--warn); font-weight: 600; }
 .DOWN { color: var(--bad); font-weight: 600; }
 .PENDING { color: var(--mut); }
-.sev-CRITICAL { background: var(--bad); color: #fff; padding: 2px 6px; border-radius: 3px; font-weight: 700; font-size: 10px; }
-.sev-HIGH { background: var(--warn); color: #000; padding: 2px 6px; border-radius: 3px; font-weight: 700; font-size: 10px; }
-.sev-MEDIUM { background: var(--blue); color: #000; padding: 2px 6px; border-radius: 3px; font-weight: 700; font-size: 10px; }
+.sev-CRITICAL { background: var(--bad); color: #fff; padding: 2px 7px; border-radius: 4px; font-weight: 700; font-size: 10px; letter-spacing: 0.5px; }
+.sev-HIGH { background: var(--warn); color: #000; padding: 2px 7px; border-radius: 4px; font-weight: 700; font-size: 10px; letter-spacing: 0.5px; }
+.sev-MEDIUM { background: var(--blue); color: #000; padding: 2px 7px; border-radius: 4px; font-weight: 700; font-size: 10px; letter-spacing: 0.5px; }
 
-/* Level 1: Overview Screen */
-#view_overview { flex: 1; overflow-y: auto; padding: 24px 32px; display: none; }
-.overview-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 28px; }
-.stat-card { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 18px 20px; box-shadow: 0 4px 12px rgba(0,0,0,.2); }
-.stat-card .label { font-size: 12px; color: var(--mut); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px; }
-.stat-card .val { font-size: 26px; font-weight: 700; color: var(--tx-bright); }
-.projects-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-.projects-header h2 { margin: 0; font-size: 18px; color: var(--tx-bright); }
-.projects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 18px; margin-bottom: 32px; }
-.project-card { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 18px; cursor: pointer; transition: all .2s ease; position: relative; }
-.project-card:hover { border-color: var(--blue); transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,.3); }
-.project-card h3 { margin: 0 0 6px; font-size: 16px; color: var(--tx-bright); display: flex; justify-content: space-between; align-items: center; }
+/* Pulse Indicator */
+.pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--ok);
+  display: inline-block;
+  box-shadow: 0 0 0 0 rgba(63, 185, 80, 0.7);
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(63, 185, 80, 0.7); }
+  70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(63, 185, 80, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(63, 185, 80, 0); }
+}
 
-/* Level 2: Project Detail View */
-#view_project { flex: 1; display: grid; grid-template-columns: 270px 1fr; min-height: 0; }
-#side { background: var(--side); overflow: auto; padding: 12px; border-right: 1px solid var(--line); display: flex; flex-direction: column; }
-#side h4 { margin: 10px 0 6px; color: var(--mut); font-size: 11px; text-transform: uppercase; letter-spacing: .5px; }
-.item { padding: 4px 8px; border-radius: 4px; cursor: pointer; white-space: nowrap; font-size: 12px; }
-.item:hover { background: #282c34; }
-.f { margin-left: 14px; font-family: Consolas, monospace; }
-details { margin-left: 8px; } summary { cursor: pointer; padding: 2px 0; font-weight: 500; }
+/* ==========================================================
+   VIEW 1: AUTHENTICATION (LOGIN & REGISTRATION)
+   ========================================================== */
+#view_auth {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at 50% 20%, #1f2937 0%, #0d1117 75%);
+  overflow-y: auto;
+  padding: 24px;
+}
+.auth-container {
+  width: 100%;
+  max-width: 440px;
+  background: rgba(22, 27, 34, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  padding: 34px 36px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(47, 129, 247, 0.1);
+  animation: fadeIn 0.3s ease-out;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(12px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.auth-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 24px;
+}
+.auth-logo-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(47, 129, 247, 0.12);
+  border: 1px solid rgba(88, 166, 255, 0.3);
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--blue);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.auth-brand h1 {
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  background: linear-gradient(135deg, #f0f6fc 0%, #8b949e 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 6px;
+}
+.auth-brand p {
+  color: var(--mut);
+  font-size: 13px;
+  margin: 0;
+}
 
-#work { display: grid; grid-template-rows: 1fr 320px; min-height: 0; min-width: 0; }
-#editor { overflow: auto; min-height: 0; background: #1a1d23; position: relative; }
-#tab { background: #21252b; padding: 7px 16px; border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 10; font-family: Consolas, monospace; font-size: 12px; color: var(--tx-bright); }
-.ln { display: flex; font: 12px/20px Consolas, monospace; white-space: pre; }
-.ln i { width: 50px; text-align: right; padding-right: 14px; color: var(--mut); font-style: normal; flex: none; user-select: none; }
-.ln.bad { background: rgba(224,108,117,.25); border-left: 3px solid var(--bad); }
+/* Auth Tabs */
+.auth-tabs {
+  display: flex;
+  background: var(--side);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 3px;
+  margin-bottom: 22px;
+}
+.auth-tab-btn {
+  flex: 1;
+  text-align: center;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 6px;
+  color: var(--mut);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  justify-content: center;
+}
+.auth-tab-btn:hover { color: var(--tx-bright); background: transparent; transform: none; box-shadow: none; }
+.auth-tab-btn.active {
+  background: #21262d;
+  color: #fff;
+  border: 1px solid var(--line);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
 
-#panel { border-top: 1px solid var(--line); display: grid; grid-template-rows: 36px 1fr; min-height: 0; background: var(--side); }
-#tabs { display: flex; background: var(--bar); border-bottom: 1px solid var(--line); overflow-x: auto; }
-#tabs div { padding: 8px 18px; cursor: pointer; color: var(--mut); font-weight: 600; font-size: 12px; white-space: nowrap; border-bottom: 2px solid transparent; transition: all .15s; }
-#tabs div.on { color: var(--tx-bright); border-bottom: 2px solid var(--blue); background: var(--side); }
-#body { overflow: auto; padding: 14px; }
+.auth-form-group {
+  margin-bottom: 16px;
+}
+.auth-form-group label {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--tx);
+  margin-bottom: 6px;
+}
+.auth-form-group input {
+  width: 100%;
+  padding: 10px 12px;
+  background: #0d1117;
+  color: #fff;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 13px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.auth-form-group input:focus {
+  outline: none;
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.2);
+}
+.auth-btn-submit {
+  width: 100%;
+  padding: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  justify-content: center;
+  margin-top: 8px;
+  background: #1f6feb;
+}
+.auth-btn-submit:hover { background: #388bfd; }
 
-/* Common Tables & Boxes */
-table { border-collapse: collapse; width: 100%; font-size: 12px; }
-td, th { padding: 8px 10px; border-bottom: 1px solid var(--line); text-align: left; }
-th { color: var(--mut); font-size: 11px; text-transform: uppercase; font-weight: 600; }
-.box { border-left: 3px solid var(--bad); background: #21252b; padding: 12px 16px; margin-bottom: 12px; border-radius: 4px; border-top: 1px solid var(--line); border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.auth-alert {
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-size: 12px;
+  margin-bottom: 16px;
+  display: none;
+}
+.auth-alert.error {
+  display: block;
+  background: rgba(248, 81, 73, 0.15);
+  border: 1px solid var(--bad);
+  color: #ff7b72;
+}
+.auth-alert.success {
+  display: block;
+  background: rgba(63, 185, 80, 0.15);
+  border: 1px solid var(--ok);
+  color: #56d364;
+}
+
+.auth-helper-pill {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(210, 153, 34, 0.1);
+  border: 1px solid rgba(210, 153, 34, 0.35);
+  border-radius: 6px;
+  padding: 8px 12px;
+  margin-bottom: 16px;
+  font-size: 11px;
+  color: #f2cc60;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.auth-helper-pill:hover {
+  background: rgba(210, 153, 34, 0.2);
+  border-color: rgba(210, 153, 34, 0.6);
+}
+
+.auth-switch-note {
+  text-align: center;
+  font-size: 12px;
+  color: var(--mut);
+  margin-top: 18px;
+}
+
+/* ==========================================================
+   VIEW 2: MAIN DASHBOARD & APPLICATION WORKSPACE
+   ========================================================== */
+#view_app {
+  display: none;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Top Navigation Bar */
+#top {
+  height: 52px;
+  background: var(--bar);
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  gap: 16px;
+  flex-shrink: 0;
+  z-index: 100;
+}
+#top .brand {
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+#top .brand span.logo-text {
+  background: linear-gradient(135deg, #fff 20%, #79c0ff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.nav-breadcrumbs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--mut);
+}
+.nav-breadcrumbs a { color: var(--mut); font-weight: 500; }
+.nav-breadcrumbs a:hover { color: #fff; text-decoration: none; }
+.nav-breadcrumbs .sep { color: #484f58; font-size: 11px; }
+.nav-breadcrumbs .current { color: var(--tx-bright); font-weight: 600; }
+
+.sp { flex: 1; }
+
+.user-profile-widget {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-left: 12px;
+  border-left: 1px solid var(--line);
+}
+.user-avatar-circle {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1f6feb, #8957e5);
+  color: #fff;
+  font-weight: 700;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255,255,255,0.2);
+}
+.user-meta {
+  display: flex;
+  flex-direction: column;
+}
+.user-name-line {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--tx-bright);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.user-email-line {
+  font-size: 11px;
+  color: var(--mut);
+}
+
+/* ==========================================================
+   LEVEL 1: DASHBOARD OVERVIEW SCREEN
+   ========================================================== */
+#view_overview {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 32px;
+  display: block;
+}
+.overview-banner {
+  background: linear-gradient(135deg, rgba(31, 111, 235, 0.1) 0%, rgba(137, 87, 229, 0.08) 100%);
+  border: 1px solid rgba(88, 166, 255, 0.2);
+  border-radius: 10px;
+  padding: 20px 24px;
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.overview-banner-text h2 {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.overview-banner-text p {
+  margin: 0;
+  color: var(--mut);
+  font-size: 13px;
+}
+.isolation-badge-pill {
+  background: rgba(63, 185, 80, 0.12);
+  border: 1px solid rgba(63, 185, 80, 0.35);
+  color: #7ee787;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Stat Cards Grid */
+.stat-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 28px;
+}
+.stat-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 18px 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transition: transform 0.15s, border-color 0.15s;
+}
+.stat-card:hover { transform: translateY(-2px); border-color: rgba(255,255,255,0.2); }
+.stat-card .label {
+  font-size: 11px;
+  color: var(--mut);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.stat-card .val {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--tx-bright);
+}
+
+/* Projects Section */
+.projects-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.projects-header h3 {
+  font-size: 18px;
+  color: var(--tx-bright);
+}
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 18px;
+  margin-bottom: 32px;
+}
+.project-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+.project-card:hover {
+  border-color: var(--blue);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.35), 0 0 16px rgba(88, 166, 255, 0.15);
+}
+.project-card h4 {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--tx-bright);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+.project-card .desc {
+  font-size: 12px;
+  color: var(--mut);
+  margin-bottom: 12px;
+  line-height: 1.4;
+}
+.project-card .prop-row {
+  font-size: 12px;
+  color: var(--mut);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.project-card-footer {
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Empty State Card (for new candidates) */
+.isolated-empty-state {
+  grid-column: 1 / -1;
+  background: var(--card);
+  border: 2px dashed var(--line);
+  border-radius: 12px;
+  padding: 48px 32px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+.isolated-empty-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: rgba(88, 166, 255, 0.1);
+  border: 1px solid rgba(88, 166, 255, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: var(--blue);
+}
+.isolated-empty-state h4 { font-size: 18px; color: var(--tx-bright); }
+.isolated-empty-state p {
+  max-width: 480px;
+  color: var(--mut);
+  font-size: 13px;
+  margin: 0;
+}
+
+/* ==========================================================
+   LEVEL 2: PROJECT DETAIL DOCK & WORKSPACE
+   ========================================================== */
+#view_project {
+  flex: 1;
+  display: none;
+  grid-template-columns: 280px 1fr;
+  min-height: 0;
+  overflow: hidden;
+}
+#side {
+  background: var(--side);
+  overflow-y: auto;
+  padding: 14px;
+  border-right: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+}
+#side h4 {
+  margin: 14px 0 8px;
+  color: var(--mut);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  font-weight: 700;
+}
+.item {
+  padding: 5px 8px;
+  border-radius: 5px;
+  cursor: pointer;
+  white-space: nowrap;
+  font-size: 12px;
+  transition: background 0.12s;
+}
+.item:hover { background: #21262d; }
+.f {
+  margin-left: 12px;
+  font-family: 'JetBrains Mono', Consolas, monospace;
+  font-size: 11px;
+}
+details { margin-left: 6px; }
+summary { cursor: pointer; padding: 3px 0; font-weight: 500; font-size: 12px; }
+
+#work {
+  display: grid;
+  grid-template-rows: 1fr 340px;
+  min-height: 0;
+  min-width: 0;
+}
+#editor {
+  overflow: auto;
+  min-height: 0;
+  background: #0d1117;
+  position: relative;
+}
+#tab {
+  background: #161b22;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--line);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  font-family: 'JetBrains Mono', Consolas, monospace;
+  font-size: 12px;
+  color: var(--tx-bright);
+}
+.ln {
+  display: flex;
+  font: 12px/20px 'JetBrains Mono', Consolas, monospace;
+  white-space: pre;
+}
+.ln i {
+  width: 50px;
+  text-align: right;
+  padding-right: 14px;
+  color: var(--mut);
+  font-style: normal;
+  flex: none;
+  user-select: none;
+}
+.ln.bad {
+  background: rgba(248, 81, 73, 0.2);
+  border-left: 3px solid var(--bad);
+}
+
+#panel {
+  border-top: 1px solid var(--line);
+  display: grid;
+  grid-template-rows: 40px 1fr;
+  min-height: 0;
+  background: var(--side);
+}
+#tabs {
+  display: flex;
+  background: var(--bar);
+  border-bottom: 1px solid var(--line);
+  overflow-x: auto;
+}
+#tabs div {
+  padding: 10px 18px;
+  cursor: pointer;
+  color: var(--mut);
+  font-weight: 600;
+  font-size: 12px;
+  white-space: nowrap;
+  border-bottom: 2px solid transparent;
+  transition: all 0.15s;
+}
+#tabs div:hover { color: var(--tx-bright); }
+#tabs div.on {
+  color: var(--tx-bright);
+  border-bottom: 2px solid var(--blue);
+  background: var(--side);
+}
+#body {
+  overflow-y: auto;
+  padding: 16px;
+}
+
+/* Tables */
+table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 12px;
+}
+td, th {
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+}
+th {
+  color: var(--mut);
+  font-size: 11px;
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+tr:hover td { background: rgba(255,255,255,0.02); }
+
+.box {
+  border-left: 3px solid var(--bad);
+  background: #161b22;
+  padding: 14px 18px;
+  margin-bottom: 14px;
+  border-radius: 6px;
+  border-top: 1px solid var(--line);
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
 .box.ok { border-left-color: var(--ok); }
 .box.warn { border-left-color: var(--warn); }
-.diff-box { background: #16181d; border: 1px solid var(--line); border-radius: 4px; padding: 10px; margin: 8px 0; font-family: Consolas, monospace; font-size: 12px; }
-.diff-del { background: rgba(224,108,117,.15); color: #ff9999; padding: 4px 8px; border-left: 3px solid var(--bad); margin-bottom: 4px; white-space: pre-wrap; }
-.diff-add { background: rgba(152,195,121,.15); color: #aaffaa; padding: 4px 8px; border-left: 3px solid var(--ok); margin-bottom: 4px; white-space: pre-wrap; }
+.diff-box {
+  background: #0d1117;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 12px;
+  margin: 10px 0;
+  font-family: 'JetBrains Mono', Consolas, monospace;
+  font-size: 12px;
+}
+.diff-del {
+  background: rgba(248, 81, 73, 0.18);
+  color: #ffa198;
+  padding: 6px 10px;
+  border-left: 3px solid var(--bad);
+  margin-bottom: 6px;
+  white-space: pre-wrap;
+  border-radius: 3px;
+}
+.diff-add {
+  background: rgba(63, 185, 80, 0.18);
+  color: #7ee787;
+  padding: 6px 10px;
+  border-left: 3px solid var(--ok);
+  margin-bottom: 6px;
+  white-space: pre-wrap;
+  border-radius: 3px;
+}
 
 /* Status Bar */
-#st { height: 26px; background: #0e639c; display: flex; gap: 20px; padding: 0 14px; align-items: center; font-size: 11px; color: #fff; flex-shrink: 0; }
+#st {
+  height: 28px;
+  background: #161b22;
+  border-top: 1px solid var(--line);
+  display: flex;
+  gap: 24px;
+  padding: 0 16px;
+  align-items: center;
+  font-size: 11px;
+  color: var(--tx);
+  flex-shrink: 0;
+}
 #welcome { padding: 32px; }
-dialog { background: var(--card); color: var(--tx); border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 12px 32px rgba(0,0,0,.6); padding: 24px; max-width: 520px; }
-dialog input { display: block; width: 100%; margin: 6px 0 14px; padding: 8px 10px; background: var(--bg); color: #fff; border: 1px solid var(--line); border-radius: 4px; font-family: inherit; font-size: 13px; }
-canvas { max-height: 170px; margin-bottom: 14px; }
-code { color: var(--warn); background: #282c34; padding: 2px 6px; border-radius: 3px; font-family: Consolas, monospace; }
-ul { margin: 6px 0 0 18px; padding: 0; }
+
+/* Dialogs */
+dialog {
+  background: var(--card);
+  color: var(--tx);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
+  padding: 24px;
+  max-width: 520px;
+  width: 90%;
+}
+dialog::backdrop { background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(4px); }
+dialog h3 { margin: 0 0 14px; font-size: 16px; color: #fff; }
+dialog input {
+  display: block;
+  width: 100%;
+  margin: 6px 0 14px;
+  padding: 9px 12px;
+  background: var(--bg);
+  color: #fff;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 13px;
+}
+dialog input:focus { outline: none; border-color: var(--blue); }
+canvas { max-height: 180px; margin-bottom: 14px; }
+code { color: var(--warn); background: #21262d; padding: 2px 6px; border-radius: 4px; font-size: 11px; }
 </style>
 </head>
 <body>
 
-<!-- TOP BAR -->
-<div id="top">
-  <div class="brand" onclick="goHome()">
-    <span style="color:var(--blue);">●</span> ARIS
-  </div>
+<!-- ==========================================================
+     PAGE 1: DEDICATED AUTHENTICATION (LOGIN & REGISTRATION)
+     ========================================================== -->
+<div id="view_auth">
+  <div class="auth-container">
+    <div class="auth-brand">
+      <div class="auth-logo-badge">
+        <span class="pulse-dot"></span> SRE &amp; Observability
+      </div>
+      <h1>ARIS Platform</h1>
+      <p>Autonomous Reliability &amp; Intelligence System</p>
+    </div>
 
-  <div id="top_home_actions" style="display:flex; align-items:center; gap:12px;">
-    <span style="color:var(--mut); font-size:12px;">Autonomous Reliability &amp; Intelligence System</span>
-  </div>
+    <!-- Mode Switcher -->
+    <div class="auth-tabs">
+      <button class="auth-tab-btn active" id="btn_tab_signin" onclick="switchAuthMode('login')">Sign In</button>
+      <button class="auth-tab-btn" id="btn_tab_register" onclick="switchAuthMode('register')">New Registration</button>
+    </div>
 
-  <div id="top_project_info" style="display:none; align-items:center; gap:10px;">
-    <button class="g sm" onclick="goHome()">&larr; Overview</button>
-    <span id="pname" style="font-weight:700; color:#fff; font-size:14px;"></span>
-    <span id="pid_badge" class="badge"></span>
-    <span id="pkey_badge" class="badge key" title="Click to copy Project API Key" onclick="copyKey()"></span>
-    <div id="hscore" class="score-badge">100% HEALTH</div>
-  </div>
+    <div id="auth_alert" class="auth-alert"></div>
 
-  <span class="sp"></span>
+    <!-- Form: Sign In -->
+    <div id="form_signin_block">
+      <div class="auth-helper-pill" onclick="quickFillAdmin()">
+        <span>🔑 <b>Quick Admin:</b> ID <code>rakshit</code> / Pwd <code>admin123</code></span>
+        <span style="font-weight:700;">Fill &rarr;</span>
+      </div>
 
-  <div id="top_buttons" style="display:flex; align-items:center; gap:8px;">
-    <button id="btn_toggle_fault" class="warn sm" style="display:none;" onclick="toggleSimulatedFault()">⚡ Simulate 500 Fault</button>
-    <button id="btn_add_ep" class="g sm" style="display:none;" onclick="$('dlg_ep').showModal()">+ Add API</button>
-    <button class="sm" onclick="$('dlg_proj').showModal()">+ New Project</button>
-    <div id="user_badge" style="display:flex; align-items:center; gap:6px; background:#21252b; padding:4px 10px; border-radius:14px; border:1px solid var(--line); font-size:11px; cursor:pointer;" onclick="openAuthModal()" title="Current Authenticated User (Click to switch or logout)">
-      <span style="color:var(--ok);">●</span>
-      <span id="user_name_badge">Loading user...</span>
-      <span style="color:var(--blue); font-size:10px;">▾</span>
+      <div class="auth-form-group">
+        <label for="login_user_id">User ID or Email</label>
+        <input id="login_user_id" placeholder="e.g. rakshit or candidate@example.com" autocomplete="username">
+      </div>
+      <div class="auth-form-group">
+        <label for="login_password">Password</label>
+        <input id="login_password" type="password" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <button class="auth-btn-submit" id="btn_login_submit" onclick="handleLogin()">Sign In to Dashboard &rarr;</button>
+      <div class="auth-switch-note">
+        Candidate onboarding? <a onclick="switchAuthMode('register')">Create an isolated workspace</a>
+      </div>
+    </div>
+
+    <!-- Form: Candidate Registration -->
+    <div id="form_register_block" style="display:none;">
+      <div class="auth-form-group">
+        <label for="reg_name">Your Full Name</label>
+        <input id="reg_name" placeholder="e.g. Alex Morgan" autocomplete="name">
+      </div>
+      <div class="auth-form-group">
+        <label for="reg_email">Email ID</label>
+        <input id="reg_email" type="email" placeholder="e.g. alex@candidate.com" autocomplete="email">
+      </div>
+      <div class="auth-form-group">
+        <label for="reg_password">Password</label>
+        <input id="reg_password" type="password" placeholder="Create a secure password" autocomplete="new-password">
+      </div>
+      <div style="font-size:11px; color:var(--mut); margin-bottom:14px; line-height:1.4;">
+        🛡️ <b>Strict Project Isolation:</b> Your projects and telemetry will be completely private and invisible to other users.
+      </div>
+      <button class="auth-btn-submit" id="btn_register_submit" onclick="handleRegister()">Register &amp; Enter Dashboard &rarr;</button>
+      <div class="auth-switch-note">
+        Already registered? <a onclick="switchAuthMode('login')">Sign in with your credentials</a>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- LEVEL 1: OVERVIEW SCREEN -->
-<div id="view_overview">
-  <div class="overview-grid">
-    <div class="stat-card">
-      <div class="label">Total Projects</div>
-      <div class="val" id="ov_projects">-</div>
+<!-- ==========================================================
+     PAGE 2: MAIN DASHBOARD & PROJECT WORKSPACE
+     ========================================================== -->
+<div id="view_app">
+  <!-- TOP NAVIGATION BAR -->
+  <div id="top">
+    <div class="brand" onclick="goHome()">
+      <span class="pulse-dot"></span>
+      <span class="logo-text">ARIS</span>
+      <span class="badge" style="font-size:10px; border-color:rgba(88,166,255,0.3); color:#79c0ff;">SRE 2.0</span>
     </div>
-    <div class="stat-card">
-      <div class="label">Monitored APIs</div>
-      <div class="val" id="ov_monitors">-</div>
+
+    <div class="nav-breadcrumbs" id="nav_breadcrumbs">
+      <span class="sep">/</span>
+      <span class="current" id="nav_current_view">Dashboard</span>
     </div>
-    <div class="stat-card">
-      <div class="label">Average Latency</div>
-      <div class="val" id="ov_latency">- ms</div>
+
+    <!-- Project Contextual Controls (Visible when inside a project dock) -->
+    <div id="top_project_info" style="display:none; align-items:center; gap:10px; margin-left:14px;">
+      <span class="badge" id="pid_badge">ID #1</span>
+      <span class="badge key" id="pkey_badge" onclick="copyKey()" title="Click to copy API Key">Key: aris_live_... 📋</span>
+      <button class="warn sm" id="btn_toggle_fault" onclick="toggleSimulatedFault()">⚡ Simulate 500 Fault</button>
+      <button class="g sm" id="btn_add_ep" onclick="$('dlg_ep').showModal()">+ Add API</button>
+      <div id="hscore" class="score-badge">100% HEALTH</div>
     </div>
-    <div class="stat-card">
-      <div class="label">Active Incidents</div>
-      <div class="val" id="ov_incidents" style="color:var(--bad);">-</div>
-    </div>
-    <div class="stat-card">
-      <div class="label">System Reliability</div>
-      <div class="val" id="ov_health" style="color:var(--ok);">-</div>
+
+    <div class="sp"></div>
+
+    <!-- Logged In User Profile Widget -->
+    <div class="user-profile-widget" id="user_profile_widget">
+      <div class="user-avatar-circle" id="user_avatar_initial">R</div>
+      <div class="user-meta">
+        <div class="user-name-line">
+          <span id="user_display_name">Rakshit</span>
+          <span class="badge role-admin" id="user_role_badge">ADMIN</span>
+        </div>
+        <div class="user-email-line" id="user_display_id">rakshit</div>
+      </div>
+      <button class="g sm" style="margin-left:8px;" onclick="handleLogout()" title="Sign out of ARIS">Sign Out</button>
     </div>
   </div>
 
-  <div class="projects-header">
-    <h2>Projects &amp; Monitored Environments</h2>
-    <small style="color:var(--mut);">Click any project to inspect its real-time telemetry, AI anomalies, stack traces, and code diffs.</small>
+  <!-- LEVEL 1: DASHBOARD OVERVIEW SCREEN -->
+  <div id="view_overview">
+    <!-- Welcome & Isolation Banner -->
+    <div class="overview-banner">
+      <div class="overview-banner-text">
+        <h2 id="ov_welcome_heading">Welcome to your ARIS SRE Workspace</h2>
+        <p id="ov_welcome_subtext">Autonomous telemetry observation, anomaly diagnosis &amp; developer-approved remediation.</p>
+      </div>
+      <div class="isolation-badge-pill" id="isolation_status_pill">
+        <span>🛡️</span> <span>Project Isolation Active</span>
+      </div>
+    </div>
+
+    <!-- Stat Summary Cards -->
+    <div class="stat-cards-grid">
+      <div class="stat-card">
+        <div class="label">📁 My Projects</div>
+        <div class="val" id="ov_projects">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">📡 Monitored APIs</div>
+        <div class="val" id="ov_monitors">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">⚡ Avg Latency</div>
+        <div class="val" id="ov_latency">0 ms</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">⚠️ Active Incidents</div>
+        <div class="val" id="ov_incidents">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">💚 System Health</div>
+        <div class="val" id="ov_health" style="color:var(--ok);">100%</div>
+      </div>
+    </div>
+
+    <!-- Projects Section -->
+    <div class="projects-header">
+      <h3>My Project Workspaces</h3>
+      <button class="primary sm" onclick="$('dlg_proj').showModal()">+ New Project</button>
+    </div>
+
+    <div class="projects-grid" id="projects_grid">
+      <!-- Injected dynamically -->
+    </div>
+
+    <!-- Monitored APIs Across Projects -->
+    <div class="projects-header" style="margin-top:28px;">
+      <h3>All Monitored Endpoints</h3>
+    </div>
+    <div style="background:var(--card); border:1px solid var(--line); border-radius:8px; overflow:hidden;">
+      <table>
+        <thead>
+          <tr>
+            <th>Project</th>
+            <th>API Endpoint</th>
+            <th>Status</th>
+            <th>Last Latency</th>
+            <th>Avg Latency</th>
+            <th>SLO Availability</th>
+          </tr>
+        </thead>
+        <tbody id="all_apis_body">
+          <!-- Injected dynamically -->
+        </tbody>
+      </table>
+    </div>
   </div>
 
-  <div id="projects_grid" class="projects-grid"></div>
+  <!-- LEVEL 2: PROJECT DETAIL DOCK SCREEN -->
+  <div id="view_project">
+    <!-- Left Sidebar: APIs & Source Tree -->
+    <div id="side">
+      <button class="g sm" style="margin-bottom:12px;" onclick="goHome()">&larr; Back to All Projects</button>
+      <h4 style="margin-top:0;">Monitored APIs</h4>
+      <div id="ep_list"></div>
+      <h4>Source Code Explorer</h4>
+      <div id="tree"></div>
+    </div>
 
-  <h2 style="font-size:16px; margin: 28px 0 12px; color:var(--tx-bright);">Live Monitored APIs Across All Projects</h2>
-  <div style="background:var(--card); border:1px solid var(--line); border-radius:8px; overflow:hidden;">
-    <table id="all_apis_table">
-      <thead>
-        <tr><th>Project</th><th>Endpoint</th><th>Status</th><th>Last Latency</th><th>Avg Latency</th><th>SLO Uptime</th></tr>
-      </thead>
-      <tbody id="all_apis_body"></tbody>
-    </table>
+    <!-- Right Workspace: Code Viewer + 5 Section Tabs -->
+    <div id="work">
+      <!-- Top: Interactive Code Viewer / Editor -->
+      <div id="editor">
+        <div id="welcome">
+          <h3 style="color:#fff; margin-top:0;" id="dock_proj_name">Select a source file or an endpoint to view diagnostics.</h3>
+        </div>
+      </div>
+
+      <!-- Bottom: 5 SRE Control Tabs -->
+      <div id="panel">
+        <div id="tabs"></div>
+        <div id="body"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STATUS BAR -->
+  <div id="st">
+    <span id="st_user_session">Session: Rakshit (ADMIN)</span>
+    <span id="st_isolation">🛡️ Project Isolation: Strict</span>
+    <span id="st_ai_engine">Isolation Forest: Online</span>
+    <span style="margin-left:auto; color:var(--mut);">Observe &rarr; Detect &rarr; Locate Code &rarr; AI Root Cause &rarr; AI Patch &rarr; Recovery</span>
   </div>
 </div>
 
-<!-- LEVEL 2: PROJECT DETAIL SCREEN -->
-<div id="view_project">
-  <div id="side">
-    <h4>Project Monitored APIs</h4>
-    <div id="ep_list" style="margin-bottom:12px;"><small>Loading...</small></div>
-    <button class="g sm" style="width:100%; justify-content:center; margin-bottom:14px;" onclick="$('dlg_ep').showModal()">+ Add API Endpoint</button>
-
-    <h4>Source Code Explorer</h4>
-    <div id="tree" style="flex:1; overflow-y:auto;"><small>Open a project</small></div>
-  </div>
-
-  <div id="work">
-    <div id="editor"></div>
-    <div id="panel">
-      <div id="tabs"></div>
-      <div id="body"></div>
-    </div>
-  </div>
-</div>
-
-<!-- STATUS BAR -->
-<div id="st">
-  <span id="s1">ARIS Engine Active</span>
-  <span id="s2">Isolation Forest Online</span>
-  <span id="s3" style="margin-left:auto;">Flow: Observe &rarr; Detect &rarr; Locate Code &rarr; AI Root Cause &rarr; AI Patch &rarr; Recovery</span>
-</div>
-
+<!-- ==========================================================
+     MODALS / DIALOGS
+     ========================================================== -->
 <!-- DIALOG: CREATE NEW PROJECT -->
 <dialog id="dlg_proj">
-  <h3 style="margin:0 0 12px; color:#fff;">Create New Project</h3>
-  Project Name<input id="np_name" placeholder="e.g. E-Commerce Backend">
-  API Base URL<input id="np_url" placeholder="http://localhost:8080">
+  <h3>Create New Project Workspace</h3>
+  Project Name<input id="np_name" placeholder="e.g. Payment Microservice">
+  Base URL (http/https)<input id="np_url" placeholder="http://localhost:8080">
   Initial Endpoints (comma-separated)<input id="np_endpoints" placeholder="/api/products, /api/orders, /api/payment">
-  Source Code Directory (absolute path)<input id="np_src" placeholder="C:\Users\DeLL\Downloads\aris-patch-v2\src\main\java">
-  Log File (absolute path)<input id="np_log" placeholder="C:\Users\DeLL\Downloads\aris-patch-v2\logs\aris.log">
+  Source Code Directory (absolute or relative)<input id="np_src" placeholder="src/main/java">
+  Runtime Log File (absolute or relative)<input id="np_log" placeholder="logs/aris.log">
   <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:16px;">
     <button class="g" onclick="$('dlg_proj').close()">Cancel</button>
-    <button onclick="createProject()">Create Project</button>
+    <button class="primary" onclick="createProject()">Create Project</button>
   </div>
 </dialog>
 
 <!-- DIALOG: ADD MONITORED ENDPOINT -->
 <dialog id="dlg_ep">
-  <h3 style="margin:0 0 12px; color:#fff;">Add Monitored API Endpoint</h3>
+  <h3>Add Monitored API Endpoint</h3>
   Endpoint Name<input id="nep_name" placeholder="e.g. Order Processing API">
   Endpoint Path (or full URL)<input id="nep_path" placeholder="e.g. /api/orders">
   HTTP Method<input id="nep_method" value="GET" placeholder="GET">
   Check Interval (seconds)<input id="nep_int" value="5" type="number">
   <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:16px;">
     <button class="g" onclick="$('dlg_ep').close()">Cancel</button>
-    <button onclick="addEndpoint()">Add Endpoint</button>
+    <button class="primary" onclick="addEndpoint()">Add Endpoint</button>
   </div>
 </dialog>
 
-<!-- DIALOG: AUTHENTICATION (LOGIN / REGISTER) -->
-<dialog id="dlg_auth">
-  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-    <h3 id="auth_title" style="margin:0; color:#fff;">ARIS Identity &amp; Auth</h3>
-    <button class="g sm" onclick="$('dlg_auth').close()">✕</button>
-  </div>
-  <div style="display:flex; gap:8px; margin-bottom:14px; border-bottom:1px solid var(--line); padding-bottom:8px;">
-    <button id="tab_login" class="sm" onclick="setAuthTab('login')">Sign In</button>
-    <button id="tab_reg" class="g sm" onclick="setAuthTab('reg')">Register New User</button>
-  </div>
-  <div id="auth_name_row" style="display:none;">
-    Full Name<input id="auth_name" placeholder="e.g. Alice Smith">
-  </div>
-  Email Address<input id="auth_email" type="email" placeholder="e.g. demo@aris.dev">
-  Password<input id="auth_pwd" type="password" placeholder="••••••••">
-  <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px;">
-    <button class="danger sm" id="btn_logout" onclick="logout()">Log Out</button>
-    <div style="display:flex; gap:8px;">
-      <button class="g" onclick="$('dlg_auth').close()">Cancel</button>
-      <button id="btn_auth_submit" onclick="submitAuth()">Sign In</button>
-    </div>
-  </div>
-</dialog>
-
+<!-- ==========================================================
+     APPLICATION LOGIC & SCRIPTS
+     ========================================================== -->
 <script>
 const API = '/api/workspace', AI = 'http://localhost:8000', $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
 let authToken = localStorage.getItem('aris_jwt') || '';
 let currentUser = JSON.parse(localStorage.getItem('aris_user') || 'null');
-let authMode = 'login';
-
-const j = (u, o = {}) => {
-  const headers = Object.assign({}, o.headers || {});
-  if (authToken) {
-    headers['Authorization'] = 'Bearer ' + authToken;
-  }
-  return fetch(u, Object.assign({}, o, { headers })).then(async r => {
-    if (r.status === 401 && !u.includes('/api/auth/')) {
-      console.warn('Authentication token expired or required.');
-      await bootstrapAuth();
-      headers['Authorization'] = 'Bearer ' + authToken;
-      const retry = await fetch(u, Object.assign({}, o, { headers }));
-      if (!retry.ok) throw new Error(retry.status);
-      return retry.json();
-    }
-    if (!r.ok) throw new Error(r.status);
-    return r.json();
-  });
-};
+let curId = null, curProj = null, tab = 0;
+let mons = [], aiIncidents = [], hist = [], host = {}, chart = null;
+let faultActive = false;
 
 const TABS = [
   '1. Health & Telemetry',
@@ -290,7 +1084,7 @@ const TABS = [
   '4. Root Cause & AI',
   '5. AI Fix & Incident Timeline'
 ];
-const COL = ['#61afef', '#98c379', '#e5c07b', '#c678dd', '#e06c75'];
+const COL = ['#58a6ff', '#3fb950', '#d29922', '#bc8cff', '#f85149'];
 const CAUSE = {
   unreachable: 'Service Unreachable / Connection Dropped',
   auth: 'Authentication Failure (401/403 Quota / Expired Token)',
@@ -302,59 +1096,269 @@ const CAUSE = {
   ram_spike: 'Host Memory Exhaustion / Pressure'
 };
 
-let curId = null, curProj = null, tab = 0;
-let mons = [], aiIncidents = [], hist = [], host = {}, chart = null;
-let faultActive = false;
+// Authenticated fetch wrapper
+const j = (u, o = {}) => {
+  const headers = Object.assign({}, o.headers || {});
+  if (authToken) {
+    headers['Authorization'] = 'Bearer ' + authToken;
+  }
+  return fetch(u, Object.assign({}, o, { headers })).then(async r => {
+    if (r.status === 401) {
+      console.warn('Session expired or unauthorized request to:', u);
+      handleLogout('Session expired. Please sign in again.');
+      throw new Error('401 Unauthorized');
+    }
+    if (!r.ok) {
+      const errTxt = await r.text();
+      throw new Error(errTxt || r.status);
+    }
+    return r.json();
+  });
+};
 
-// NAVIGATION
+/* ==========================================================
+   AUTHENTICATION LOGIC
+   ========================================================== */
+function switchAuthMode(mode) {
+  clearAuthAlert();
+  if (mode === 'login') {
+    $('btn_tab_signin').classList.add('active');
+    $('btn_tab_register').classList.remove('active');
+    $('form_signin_block').style.display = 'block';
+    $('form_register_block').style.display = 'none';
+  } else {
+    $('btn_tab_signin').classList.remove('active');
+    $('btn_tab_register').classList.add('active');
+    $('form_signin_block').style.display = 'none';
+    $('form_register_block').style.display = 'block';
+  }
+}
+
+function showAuthAlert(msg, isSuccess = false) {
+  const el = $('auth_alert');
+  el.className = 'auth-alert ' + (isSuccess ? 'success' : 'error');
+  el.textContent = msg;
+}
+
+function clearAuthAlert() {
+  const el = $('auth_alert');
+  el.className = 'auth-alert';
+  el.textContent = '';
+}
+
+function quickFillAdmin() {
+  switchAuthMode('login');
+  $('login_user_id').value = 'rakshit';
+  $('login_password').value = 'admin123';
+  showAuthAlert('Admin credentials pre-filled. Click "Sign In" to proceed.', true);
+}
+
+async function handleLogin() {
+  clearAuthAlert();
+  const email = $('login_user_id').value.trim();
+  const password = $('login_password').value.trim();
+  if (!email || !password) {
+    showAuthAlert('Please enter both User ID / Email and Password.');
+    return;
+  }
+
+  const btn = $('btn_login_submit');
+  btn.textContent = 'Signing In...';
+  btn.disabled = true;
+
+  try {
+    const res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    if (!res.ok) {
+      throw new Error('Invalid credentials. Please verify your User ID and Password.');
+    }
+    const data = await res.json();
+    authToken = data.token;
+    currentUser = { id: data.id, name: data.name, email: data.email, role: data.role };
+    localStorage.setItem('aris_jwt', authToken);
+    localStorage.setItem('aris_user', JSON.stringify(currentUser));
+
+    enterAppView();
+  } catch (e) {
+    showAuthAlert(e.message);
+  } finally {
+    btn.textContent = 'Sign In to Dashboard →';
+    btn.disabled = false;
+  }
+}
+
+async function handleRegister() {
+  clearAuthAlert();
+  const name = $('reg_name').value.trim();
+  const email = $('reg_email').value.trim();
+  const password = $('reg_password').value.trim();
+  if (!name || !email || !password) {
+    showAuthAlert('All fields (Name, Email ID, Password) are required.');
+    return;
+  }
+
+  const btn = $('btn_register_submit');
+  btn.textContent = 'Registering Account...';
+  btn.disabled = true;
+
+  try {
+    // 1. Register candidate user
+    const regRes = await fetch('/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, password })
+    });
+    if (!regRes.ok) {
+      const err = await regRes.text();
+      throw new Error(err || 'Registration failed. Email might already exist.');
+    }
+
+    // 2. Automatically log in new candidate
+    const logRes = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    if (!logRes.ok) {
+      throw new Error('Registration succeeded, but auto-login failed. Please sign in.');
+    }
+    const data = await logRes.json();
+    authToken = data.token;
+    currentUser = { id: data.id, name: data.name, email: data.email, role: data.role };
+    localStorage.setItem('aris_jwt', authToken);
+    localStorage.setItem('aris_user', JSON.stringify(currentUser));
+
+    enterAppView();
+  } catch (e) {
+    showAuthAlert(e.message);
+  } finally {
+    btn.textContent = 'Register & Enter Dashboard →';
+    btn.disabled = false;
+  }
+}
+
+function handleLogout(msg) {
+  authToken = '';
+  currentUser = null;
+  localStorage.removeItem('aris_jwt');
+  localStorage.removeItem('aris_user');
+  chart?.destroy(); chart = null;
+  curId = null; curProj = null;
+
+  $('view_app').style.display = 'none';
+  $('view_auth').style.display = 'flex';
+  switchAuthMode('login');
+  if (msg) showAuthAlert(msg);
+  else showAuthAlert('You have signed out successfully.', true);
+}
+
+function enterAppView() {
+  $('view_auth').style.display = 'none';
+  $('view_app').style.display = 'flex';
+  updateUserUI();
+  goHome();
+}
+
+function updateUserUI() {
+  if (!currentUser) return;
+  const initial = (currentUser.name || currentUser.email || 'U').charAt(0).toUpperCase();
+  $('user_avatar_initial').textContent = initial;
+  $('user_display_name').textContent = currentUser.name || 'User';
+  $('user_display_id').textContent = currentUser.email || 'authenticated';
+
+  const roleEl = $('user_role_badge');
+  const role = currentUser.role || 'DEVELOPER';
+  roleEl.textContent = role;
+  roleEl.className = 'badge ' + (role === 'ADMIN' ? 'role-admin' : 'role-dev');
+
+  $('st_user_session').textContent = `User: ${currentUser.name} (${role})`;
+  $('ov_welcome_heading').textContent = `Welcome, ${currentUser.name}`;
+  $('ov_welcome_subtext').textContent = role === 'ADMIN'
+    ? 'Admin Workspace • Accessing production microservices & telemetry monitors.'
+    : 'Candidate Workspace • Strict project isolation active. Only your own projects are visible.';
+}
+
+/* ==========================================================
+   NAVIGATION & OVERVIEW DASHBOARD
+   ========================================================== */
 function goHome() {
   curId = null; curProj = null;
   chart?.destroy(); chart = null;
   $('view_project').style.display = 'none';
   $('view_overview').style.display = 'block';
-  $('top_home_actions').style.display = 'flex';
   $('top_project_info').style.display = 'none';
-  $('btn_toggle_fault').style.display = 'none';
-  $('btn_add_ep').style.display = 'none';
+  $('nav_current_view').textContent = 'Dashboard';
   loadOverview();
 }
 
 async function loadOverview() {
+  if (!authToken) return;
   try {
     const ov = await j(API + '/overview');
     $('ov_projects').textContent = ov.totalProjects;
     $('ov_monitors').textContent = ov.totalMonitors;
     $('ov_latency').textContent = ov.avgLatency + ' ms';
     $('ov_incidents').textContent = ov.activeIncidents;
-    $('ov_health').textContent = ov.systemHealth + '% ' + (ov.systemHealth > 80 ? 'HEALTHY' : 'DEGRADED');
 
-    // Projects Grid
-    $('projects_grid').innerHTML = ov.projects.map(p => `
-      <div class="project-card" onclick="openProject(${p.id})">
-        <h3>
-          <span>${esc(p.name)}</span>
-          <span class="badge">ID #${p.id}</span>
-        </h3>
-        <div style="font-size:12px; color:var(--mut); margin-bottom:8px;">Base: <code>${esc(p.baseUrl)}</code></div>
-        <div style="font-size:11px; margin-bottom:12px;">
-          <span class="badge key" onclick="event.stopPropagation(); copyCustomKey('${esc(p.apiKey)}')">Key: ${esc(p.apiKey ? p.apiKey.substring(0, 16) + '…' : 'default')} 📋</span>
-        </div>
-        <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--line); padding-top:10px;">
-          <span class="score-badge ${p.healthScore < 60 ? 'bad' : p.healthScore < 80 ? 'warn' : ''}">${p.healthScore}% HEALTH</span>
-          <span style="color:var(--blue); font-weight:600; font-size:12px;">${p.monitorCount} Monitored APIs &rarr;</span>
-        </div>
-      </div>
-    `).join('') || '<p><small>No projects configured. Click &ldquo;+ New Project&rdquo; to begin.</small></p>';
+    const hs = ov.systemHealth ?? 100;
+    const hEl = $('ov_health');
+    hEl.textContent = `${hs}%`;
+    hEl.style.color = hs < 60 ? 'var(--bad)' : hs < 80 ? 'var(--warn)' : 'var(--ok)';
 
-    // All APIs Table
+    // Render Projects Grid
+    const pGrid = $('projects_grid');
+    if (ov.projects && ov.projects.length > 0) {
+      pGrid.innerHTML = ov.projects.map(p => `
+        <div class="project-card" onclick="openProject(${p.id})">
+          <h4>
+            <span>${esc(p.name)}</span>
+            <span class="badge">#${p.id}</span>
+          </h4>
+          <div class="desc">${esc(p.description || 'Monitored microservice')}</div>
+          <div class="prop-row">
+            <span style="color:var(--mut);">Base URL:</span>
+            <code>${esc(p.baseUrl || 'http://localhost:8080')}</code>
+          </div>
+          <div class="prop-row">
+            <span class="badge key" onclick="event.stopPropagation(); copyCustomKey('${esc(p.apiKey)}')">
+              Key: ${esc(p.apiKey ? p.apiKey.substring(0, 18) + '…' : 'default')} 📋
+            </span>
+          </div>
+          <div class="project-card-footer">
+            <span class="score-badge ${p.healthScore < 60 ? 'bad' : p.healthScore < 80 ? 'warn' : ''}">
+              ${p.healthScore}% HEALTH
+            </span>
+            <span style="color:var(--blue); font-weight:600; font-size:12px;">
+              ${p.monitorCount} Monitored APIs &rarr;
+            </span>
+          </div>
+        </div>
+      `).join('');
+    } else {
+      // Empty state for newly registered candidates
+      pGrid.innerHTML = `
+        <div class="isolated-empty-state">
+          <div class="isolated-empty-icon">🛡️</div>
+          <h4>Zero Projects in your Workspace</h4>
+          <p>Strict project isolation is active. Projects created by other users (like the Admin's E-Commerce Backend) are private and not visible here.</p>
+          <button class="primary" onclick="$('dlg_proj').showModal()">+ Onboard Your First Project</button>
+        </div>
+      `;
+    }
+
+    // Render All Monitored APIs Table
     let allMons = [];
-    for (const p of ov.projects) {
+    for (const p of (ov.projects || [])) {
       try {
         const ms = await j(`/api/dashboard/monitors?projectId=${p.id}`);
         ms.forEach(m => { m.projectName = p.name; });
         allMons.push(...ms);
       } catch (e) {}
     }
+
     $('all_apis_body').innerHTML = allMons.map(m => `
       <tr>
         <td><b>${esc(m.projectName)}</b></td>
@@ -364,37 +1368,43 @@ async function loadOverview() {
         <td>${m.avgLatency ?? '-'} ms</td>
         <td>${m.uptime ?? '-'}%</td>
       </tr>
-    `).join('') || '<tr><td colspan="6"><small>No monitors active</small></td></tr>';
+    `).join('') || '<tr><td colspan="6" style="text-align:center; color:var(--mut); padding:20px;">No active monitors configured in your projects.</td></tr>';
+
   } catch (e) {
     console.error('Error loading overview:', e);
   }
 }
 
-// OPEN PROJECT DETAIL
+/* ==========================================================
+   LEVEL 2: PROJECT DETAIL DOCK
+   ========================================================== */
 async function openProject(id) {
   curId = id; tab = 0; chart?.destroy(); chart = null;
   $('view_overview').style.display = 'none';
   $('view_project').style.display = 'grid';
-  $('top_home_actions').style.display = 'none';
   $('top_project_info').style.display = 'flex';
-  $('btn_toggle_fault').style.display = 'inline-flex';
-  $('btn_add_ep').style.display = 'inline-flex';
 
   try {
     curProj = await j(`${API}/projects/${id}`);
-    $('pname').textContent = curProj.name;
+    $('dock_proj_name').textContent = curProj.name;
+    $('nav_current_view').textContent = curProj.name;
     $('pid_badge').textContent = `ID #${curProj.id}`;
     $('pkey_badge').textContent = `Key: ${curProj.apiKey ? curProj.apiKey.substring(0, 16) + '…' : 'default'} 📋`;
-  } catch (e) {}
+  } catch (e) {
+    alert('Cannot open project: ' + e.message);
+    goHome();
+    return;
+  }
 
+  // Load Source Tree
   let files = [];
   try { files = await j(`${API}/projects/${id}/files`); } catch (e) {}
-  $('tree').innerHTML = files.length ? renderTree(buildTree(files)) : '<small>No source files found in sourcePath.</small>';
+  $('tree').innerHTML = files.length ? renderTree(buildTree(files)) : '<small style="color:var(--mut);">No source files found in sourcePath.</small>';
   $('editor').innerHTML = `
     <div id="welcome">
       <h3 style="color:#fff; margin-top:0;">${esc(curProj ? curProj.name : 'Project #' + id)}</h3>
-      <p><small>Base URL: <code>${esc(curProj?.baseUrl || '')}</code> &bull; Source: <code>${esc(curProj?.sourcePath || '')}</code></small></p>
-      <p><small>Explore the 5 sections below: <b>Health &amp; Telemetry</b>, <b>API Testing</b>, <b>AI Anomalies</b>, <b>Root Cause</b>, and <b>AI Fixes / Patch</b>.</small></p>
+      <p style="color:var(--mut);"><small>Base URL: <code>${esc(curProj?.baseUrl || '')}</code> &bull; Source Path: <code>${esc(curProj?.sourcePath || '')}</code></small></p>
+      <p style="color:var(--tx);"><small>Explore the 5 SRE sections below: <b>Health &amp; Telemetry</b>, <b>Interactive API Testing</b>, <b>AI Anomalies (Isolation Forest)</b>, <b>AI Root Cause Localization</b>, and <b>AI Code Fix &amp; Patch</b>.</small></p>
     </div>`;
 
   poll();
@@ -418,11 +1428,18 @@ function renderTree(n) {
 
 async function openFile(p, line) {
   if (!curId) return;
-  const t = await fetch(`${API}/projects/${curId}/file?path=${encodeURIComponent(p)}`).then(r => r.text());
-  $('editor').innerHTML = `<div id="tab">${esc(p)}</div>` + t.split('\n').map((l, i) =>
-    `<div class="ln${i + 1 == line ? ' bad' : ''}" id="L${i + 1}"><i>${i + 1}</i>${esc(l)}</div>`
-  ).join('');
-  if (line) $('L' + line)?.scrollIntoView({ block: 'center' });
+  try {
+    const t = await fetch(`${API}/projects/${curId}/file?path=${encodeURIComponent(p)}`, {
+      headers: { 'Authorization': 'Bearer ' + authToken }
+    }).then(r => r.text());
+
+    $('editor').innerHTML = `<div id="tab">${esc(p)}</div>` + t.split('\n').map((l, i) =>
+      `<div class="ln${i + 1 == line ? ' bad' : ''}" id="L${i + 1}"><i>${i + 1}</i>${esc(l)}</div>`
+    ).join('');
+    if (line) $('L' + line)?.scrollIntoView({ block: 'center' });
+  } catch (e) {
+    console.error('Failed to open file:', e);
+  }
 }
 
 function copyKey() {
@@ -435,9 +1452,9 @@ function copyCustomKey(k) {
   alert('Project API Key copied:\n' + k);
 }
 
-// POLL TELEMETRY & ML ENGINE
+// Periodic Telemetry & AI Scoring Polling
 async function poll() {
-  if (!curId) return;
+  if (!curId || !authToken) return;
   const id = curId;
 
   try {
@@ -446,22 +1463,22 @@ async function poll() {
   } catch (e) {}
 
   try {
-    const r = await j(`${AI}/api/analysis?project_id=${id}`);
+    const r = await fetch(`${AI}/api/analysis?project_id=${id}`).then(res => res.json());
     aiIncidents = r.ok ? r.incidents : null;
-    hist = await j(`${AI}/api/history?project_id=${id}`);
+    hist = await fetch(`${AI}/api/history?project_id=${id}`).then(res => res.json());
   } catch (e) {
     aiIncidents = null;
   }
 
-  // Update sidebar list
+  // Update left sidebar API list
   $('ep_list').innerHTML = mons.map(m => `
     <div class="item" style="display:flex; justify-content:space-between; align-items:center;">
       <span style="overflow:hidden; text-overflow:ellipsis;" title="${esc(m.endpoint)}">${esc(m.name)}</span>
       <span class="${esc(m.status)}">${esc(m.status)}</span>
     </div>
-  `).join('') || '<small>No APIs configured</small>';
+  `).join('') || '<small style="color:var(--mut);">No APIs configured</small>';
 
-  // Update Health score
+  // Update Project Health score badge
   const score = computeProjectHealth(mons, aiIncidents);
   const hs = $('hscore');
   hs.textContent = `${score}% HEALTH`;
@@ -479,22 +1496,20 @@ function computeProjectHealth(ms, incs) {
   return Math.max(10, Math.min(100, s));
 }
 
-// SECTION TABS RENDERING
+// 5 Project Workspace Tabs
 function drawTabs() {
   const inc = (aiIncidents || []).filter(i => i.anomaly);
   const b = $('body');
-  $('s1').textContent = inc.length ? `⚠ ${inc.length} Active Incident(s)` : `✓ Normal Operation`;
-  $('s2').textContent = aiIncidents ? 'AI Isolation Forest Online' : 'AI Engine Offline';
 
   $('tabs').innerHTML = TABS.map((t, i) =>
     `<div class="${i == tab ? 'on' : ''}" onclick="tab=${i};drawTabs()">${t}</div>`
   ).join('');
 
   if (tab != 0 && chart) { chart.destroy(); chart = null; }
-  const off = aiIncidents ? '' : '<div class="box"><small style="color:var(--bad);">AI Engine Offline &bull; Run <code>uvicorn main:app --port 8000</code> in ai-engine/</small></div>';
+  const off = aiIncidents ? '' : '<div class="box"><small style="color:var(--bad);">AI Engine Offline &bull; Make sure FastAPI is running on port 8000.</small></div>';
 
   if (tab == 0) {
-    // 1. Health & Telemetry
+    // Tab 1: Health & Telemetry
     if (!chart) {
       b.innerHTML = '<canvas id="lat"></canvas><div id="tbl"></div>';
       chart = new Chart($('lat'), {
@@ -504,10 +1519,10 @@ function drawTabs() {
           animation: false,
           parsing: false,
           scales: {
-            x: { type: 'linear', ticks: { callback: v => new Date(v).toLocaleTimeString(), color: '#636d83', maxTicksLimit: 6 }, grid: { color: '#252932' } },
-            y: { beginAtZero: true, title: { display: true, text: 'Latency (ms)', color: '#636d83' }, ticks: { color: '#636d83' }, grid: { color: '#252932' } }
+            x: { type: 'linear', ticks: { callback: v => new Date(v).toLocaleTimeString(), color: '#8b949e', maxTicksLimit: 6 }, grid: { color: '#21262d' } },
+            y: { beginAtZero: true, title: { display: true, text: 'Latency (ms)', color: '#8b949e' }, ticks: { color: '#8b949e' }, grid: { color: '#21262d' } }
           },
-          plugins: { legend: { labels: { color: '#abb2bf' } } }
+          plugins: { legend: { labels: { color: '#c9d1d9' } } }
         }
       });
     }
@@ -534,18 +1549,18 @@ function drawTabs() {
           </tr>
         `).join('')}
       </table>
-      <div style="margin-top:14px; padding:10px 14px; background:#1f232b; border-radius:4px; border:1px solid var(--line); font-size:12px; display:flex; gap:28px;">
+      <div style="margin-top:14px; padding:12px 16px; background:#161b22; border-radius:6px; border:1px solid var(--line); font-size:12px; display:flex; gap:28px;">
         <span><b>Host CPU:</b> ${host.cpuPercent ?? '-'}%</span>
         <span><b>RAM:</b> ${host.ramUsedMb ?? '-'} / ${host.ramTotalMb ?? '-'} MB</span>
         <span><b>Disk:</b> ${host.diskUsedGb ?? '-'} / ${host.diskTotalGb ?? '-'} GB</span>
       </div>`;
   }
   else if (tab == 1) {
-    // 2. API Testing / Monitoring
+    // Tab 2: Interactive API Testing
     b.innerHTML = `
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
         <h4 style="margin:0; color:#fff;">Interactive API Test Suite</h4>
-        <button class="sm" onclick="$('dlg_ep').showModal()">+ Add New API Endpoint</button>
+        <button class="primary sm" onclick="$('dlg_ep').showModal()">+ Add New API Endpoint</button>
       </div>
       <table>
         <tr><th>API Name</th><th>Endpoint</th><th>Method</th><th>Status</th><th>Latency</th><th>Availability</th><th>Manual Live Test</th></tr>
@@ -564,11 +1579,11 @@ function drawTabs() {
           </tr>
         `).join('') || '<tr><td colspan="7">No endpoints configured</td></tr>'}
       </table>
-      <div id="test_console" style="margin-top:16px; padding:12px; background:#16181d; border:1px solid var(--line); border-radius:4px; font-family:Consolas,monospace; font-size:12px; display:none;"></div>
+      <div id="test_console" style="margin-top:16px; padding:12px; background:#0d1117; border:1px solid var(--line); border-radius:6px; font-family:'JetBrains Mono',monospace; font-size:12px; display:none;"></div>
     `;
   }
   else if (tab == 2) {
-    // 3. AI Anomalies (Isolation Forest)
+    // Tab 3: AI Anomalies (Isolation Forest)
     b.innerHTML = off + (inc.map(i => `
       <div class="box">
         <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -581,10 +1596,10 @@ function drawTabs() {
         <small style="color:var(--mut);">Multi-Dimensional Telemetry Anomalies:</small>
         <ul>${i.evidence.map(e => `<li><small>${esc(e)}</small></li>`).join('')}</ul>
       </div>
-    `).join('') || '<div class="box ok"><b style="color:var(--ok);">✓ Isolation Forest: Normal Baseline</b><br><small>Evaluated multi-dimensional latency, error rates, and resource utilization within standard deviation boundaries.</small></div>');
+    `).join('') || '<div class="box ok"><b style="color:var(--ok);">✓ Isolation Forest: Normal Baseline</b><br><small style="color:var(--mut);">Evaluated multi-dimensional latency, error rates, and resource utilization within standard deviation boundaries.</small></div>');
   }
   else if (tab == 3) {
-    // 4. Root Cause & AI
+    // Tab 4: Root Cause Diagnosis & Code Localization
     b.innerHTML = off + (inc.map(i => `
       <div class="box">
         <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
@@ -594,14 +1609,14 @@ function drawTabs() {
         <div><small>Probable Root Cause:</small> <b>${esc(CAUSE[i.cause] || i.cause)}</b></div>
         ${renderCodeLocation(i)}
       </div>
-    `).join('') || '<div class="box ok"><small style="color:var(--ok);">No active errors or stack traces detected for this project.</small></div>');
+    `).join('') || '<div class="box ok"><small style="color:var(--ok);">✓ No active errors or unhandled exception stack traces detected in logs.</small></div>');
   }
   else {
-    // 5. AI Fix & Incident Timeline
+    // Tab 5: AI Fix & Incident Timeline
     b.innerHTML = off + (inc.map(i => `
       <div class="box">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-          <b>${esc(i.name)} &bull; Recommended AI Fixes &amp; Code Patch</b>
+          <b>${esc(i.name)} &bull; Recommended AI Fixes &amp; Proposed Code Patch</b>
           <span class="sev-${i.severity || 'HIGH'}">${i.severity || 'HIGH'}</span>
         </div>
         <small style="color:var(--mut);">SRE Remediation Action Checklist:</small>
@@ -636,7 +1651,7 @@ function drawTabs() {
             <td>${esc(CAUSE[h.cause] || h.cause)}</td>
             <td><span style="color:${h.status == 'RESOLVED' ? 'var(--ok)' : 'var(--bad)'}; font-weight:700;">${esc(h.status || 'ACTIVE')}</span></td>
           </tr>
-        `).join('') || '<tr><td colspan="6"><small>No incident history recorded.</small></td></tr>'}
+        `).join('') || '<tr><td colspan="6"><small style="color:var(--mut);">No incident history recorded.</small></td></tr>'}
       </table>
     `;
   }
@@ -646,15 +1661,15 @@ function renderCodeLocation(i) {
   const c = i.code;
   if (!c || !c.file) return '<div style="margin-top:6px;"><small style="color:var(--mut);">No direct stack trace found in application logs.</small></div>';
   return `
-    <div style="margin-top:8px; padding:8px 12px; background:#181a1f; border-radius:4px; border:1px solid var(--line);">
+    <div style="margin-top:8px; padding:8px 12px; background:#0d1117; border-radius:6px; border:1px solid var(--line);">
       <small style="color:var(--mut);">${c.kind == 'stack_trace' ? '💥 Failing Code Location (Captured from Stack Trace):' : 'Endpoint Controller Handler:'}</small><br>
       <code>${esc(c.class)}.${esc(c.function)}()</code> &bull; <small>${esc(c.file)}:${c.line}</small>
       <button class="g sm" style="margin-left:8px;" data-p="${esc(c.file)}" data-l="${c.line}" onclick="openFile(this.dataset.p, +this.dataset.l)">Open in Editor</button>
-      ${c.exception ? `<div style="margin-top:6px; color:var(--bad); font-family:Consolas,monospace; font-size:11px;">${esc(c.exception)}</div>` : ''}
+      ${c.exception ? `<div style="margin-top:6px; color:var(--bad); font-family:'JetBrains Mono',monospace; font-size:11px;">${esc(c.exception)}</div>` : ''}
     </div>`;
 }
 
-// LIVE API MANUAL TEST
+// Live Interactive API Testing
 async function testApiNow(id) {
   const btn = $(`btn_test_${id}`), res = $(`test_res_${id}`), con = $('test_console');
   btn.textContent = '⏳ Testing...';
@@ -667,7 +1682,7 @@ async function testApiNow(id) {
       <div style="color:${r.ok ? 'var(--ok)' : 'var(--bad)'}; font-weight:bold; margin-bottom:4px;">
         [Manual Probe Result] ${r.endpoint} &rarr; HTTP ${r.statusCode} in ${r.latencyMs} ms
       </div>
-      <div style="color:var(--mut);">Response Snippet: ${esc(r.responseSnippet)}</div>
+      <div style="color:var(--mut); word-break:break-all;">Response Snippet: ${esc(r.responseSnippet)}</div>
     `;
     poll();
   } catch (e) {
@@ -676,7 +1691,7 @@ async function testApiNow(id) {
   }
 }
 
-// TOGGLE SIMULATED FAULT
+// Toggle Simulated Fault
 async function toggleSimulatedFault() {
   try {
     const r = await j('/api/demo/payment/toggle-fault', { method: 'POST' });
@@ -696,7 +1711,7 @@ async function toggleSimulatedFault() {
   }
 }
 
-// CREATE PROJECT
+// Create Project
 async function createProject() {
   const b = {
     name: $('np_name').value.trim(),
@@ -722,7 +1737,7 @@ async function createProject() {
   }
 }
 
-// ADD ENDPOINT
+// Add Endpoint
 async function addEndpoint() {
   if (!curId) return;
   const b = {
@@ -749,7 +1764,7 @@ async function addEndpoint() {
   }
 }
 
-// APPLY CODE PATCH
+// Apply Code Patch
 async function applyPatch(file, before, after) {
   if (!confirm(`Approve and apply AI patch to ${file}?`)) return;
   try {
@@ -788,126 +1803,31 @@ function downloadReport() {
   a.click();
 }
 
-// AUTHENTICATION MANAGEMENT
-async function bootstrapAuth() {
-  if (authToken && currentUser) {
-    updateUserBadge();
-    return;
-  }
-  try {
-    const res = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: 'demo@aris.dev', password: 'demo1234' })
-    });
-    if (res.ok) {
-      const data = await res.json();
-      authToken = data.token;
-      currentUser = { id: data.id, name: data.name, email: data.email, role: data.role };
-      localStorage.setItem('aris_jwt', authToken);
-      localStorage.setItem('aris_user', JSON.stringify(currentUser));
-      updateUserBadge();
-    }
-  } catch (e) {
-    console.error('Bootstrap auth failed:', e);
-  }
-}
-
-function updateUserBadge() {
-  if (currentUser) {
-    $('user_name_badge').textContent = `${currentUser.name} (${currentUser.email})`;
-  } else {
-    $('user_name_badge').textContent = 'Sign In';
-  }
-}
-
-function openAuthModal() {
-  setAuthTab('login');
-  if (currentUser) {
-    $('auth_email').value = currentUser.email;
-  }
-  $('dlg_auth').showModal();
-}
-
-function setAuthTab(mode) {
-  authMode = mode;
-  if (mode === 'login') {
-    $('tab_login').className = 'sm';
-    $('tab_reg').className = 'g sm';
-    $('auth_title').textContent = 'Sign In with Existing Account';
-    $('auth_name_row').style.display = 'none';
-    $('btn_auth_submit').textContent = 'Sign In';
-  } else {
-    $('tab_login').className = 'g sm';
-    $('tab_reg').className = 'sm';
-    $('auth_title').textContent = 'Register New ARIS Account';
-    $('auth_name_row').style.display = 'block';
-    $('btn_auth_submit').textContent = 'Register & Login';
-  }
-}
-
-async function submitAuth() {
-  const email = $('auth_email').value.trim();
-  const password = $('auth_pwd').value.trim();
-  const name = $('auth_name').value.trim();
-  if (!email || !password) {
-    alert('Please enter your email and password');
-    return;
-  }
-  try {
-    if (authMode === 'reg') {
-      if (!name) { alert('Please enter your name'); return; }
-      const regRes = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password })
-      });
-      if (!regRes.ok) {
-        const err = await regRes.text();
-        throw new Error(err || 'Registration failed');
-      }
-    }
-    const logRes = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
-    });
-    if (!logRes.ok) {
-      const err = await logRes.text();
-      throw new Error(err || 'Invalid email or password');
-    }
-    const data = await logRes.json();
-    authToken = data.token;
-    currentUser = { id: data.id, name: data.name, email: data.email, role: data.role };
-    localStorage.setItem('aris_jwt', authToken);
-    localStorage.setItem('aris_user', JSON.stringify(currentUser));
-    updateUserBadge();
-    $('dlg_auth').close();
-    alert(`Logged in successfully as ${currentUser.name} (${currentUser.email}). Showing your owned projects.`);
-    goHome();
-  } catch (e) {
-    alert('Authentication error: ' + e.message);
-  }
-}
-
-function logout() {
-  authToken = '';
-  currentUser = null;
-  localStorage.removeItem('aris_jwt');
-  localStorage.removeItem('aris_user');
-  updateUserBadge();
-  $('dlg_auth').close();
-  alert('You have logged out.');
-  goHome();
-}
-
-// START AT OVERVIEW
+/* ==========================================================
+   INITIALIZATION
+   ========================================================== */
 (async () => {
-  await bootstrapAuth();
-  goHome();
+  // Check if active session exists in localStorage
+  if (authToken && currentUser) {
+    try {
+      // Validate session with backend overview
+      await j(API + '/overview');
+      enterAppView();
+    } catch (e) {
+      // If expired, clear and prompt login
+      handleLogout();
+    }
+  } else {
+    // Show Login page directly
+    $('view_app').style.display = 'none';
+    $('view_auth').style.display = 'flex';
+    switchAuthMode('login');
+  }
 })();
 
+// Background Telemetry Poller
 setInterval(() => {
+  if (!authToken) return;
   if (curId) poll();
   else loadOverview();
 }, 3000);
