@@ -14,12 +14,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;
-
-/**
- * Seeds initial demo projects on first start:
- * 1. Demo Project (General reliability demo endpoints)
- * 2. E-Commerce Backend (Real-world APIs: /api/products, /api/orders, /api/payment)
- */
 @Component
 public class DemoSeeder implements CommandLineRunner {
     private final UserRepository users;
