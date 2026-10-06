@@ -1265,18 +1265,20 @@ function enterAppView() {
 function updateUserUI() {
   if (!currentUser) return;
   const initial = (currentUser.name || currentUser.email || 'U').charAt(0).toUpperCase();
-  $('user_avatar_initial').textContent = initial;
-  $('user_display_name').textContent = currentUser.name || 'User';
-  $('user_display_id').textContent = currentUser.email || 'authenticated';
+  if ($('user_avatar_initial')) $('user_avatar_initial').textContent = initial;
+  if ($('user_display_name')) $('user_display_name').textContent = currentUser.name || 'User';
+  if ($('user_display_id')) $('user_display_id').textContent = currentUser.email || 'authenticated';
 
   const roleEl = $('user_role_badge');
   const role = currentUser.role || 'DEVELOPER';
-  roleEl.textContent = role;
-  roleEl.className = 'badge ' + (role === 'ADMIN' ? 'role-admin' : 'role-dev');
+  if (roleEl) {
+    roleEl.textContent = role;
+    roleEl.className = 'badge ' + (role === 'ADMIN' ? 'role-admin' : 'role-dev');
+  }
 
-  $('st_user_session').textContent = `User: ${currentUser.name} (${role})`;
-  $('ov_welcome_heading').textContent = `Welcome, ${currentUser.name}`;
-  $('ov_welcome_subtext').textContent = role === 'ADMIN'
+  if ($('st_user_session')) $('st_user_session').textContent = `User: ${currentUser.name} (${role})`;
+  if ($('ov_welcome_heading')) $('ov_welcome_heading').textContent = `Welcome, ${currentUser.name}`;
+  if ($('ov_welcome_subtext')) $('ov_welcome_subtext').textContent = role === 'ADMIN'
     ? 'Admin Workspace • Accessing production microservices & telemetry monitors.'
     : 'Candidate Workspace • Strict project isolation active. Only your own projects are visible.';
 }
@@ -1287,10 +1289,16 @@ function updateUserUI() {
 function goHome() {
   curId = null; curProj = null;
   chart?.destroy(); chart = null;
-  $('view_project').style.display = 'none';
-  $('view_overview').style.display = 'block';
-  $('top_project_info').style.display = 'none';
-  $('nav_current_view').textContent = 'Dashboard';
+  if ($('view_project')) $('view_project').style.display = 'none';
+  if ($('view_overview')) $('view_overview').style.display = 'block';
+  if ($('top_project_info')) $('top_project_info').style.display = 'none';
+  if ($('nav_current_view')) $('nav_current_view').textContent = 'Dashboard';
+  if ($('editor')) {
+    $('editor').innerHTML = `
+      <div id="welcome">
+        <h3 style="color:#fff; margin-top:0;" id="dock_proj_name">Select a source file or an endpoint to view diagnostics.</h3>
+      </div>`;
+  }
   loadOverview();
 }
 
@@ -1298,55 +1306,59 @@ async function loadOverview() {
   if (!authToken) return;
   try {
     const ov = await j(API + '/overview');
-    $('ov_projects').textContent = ov.totalProjects;
-    $('ov_monitors').textContent = ov.totalMonitors;
-    $('ov_latency').textContent = ov.avgLatency + ' ms';
-    $('ov_incidents').textContent = ov.activeIncidents;
+    if ($('ov_projects')) $('ov_projects').textContent = ov.totalProjects;
+    if ($('ov_monitors')) $('ov_monitors').textContent = ov.totalMonitors;
+    if ($('ov_latency')) $('ov_latency').textContent = ov.avgLatency + ' ms';
+    if ($('ov_incidents')) $('ov_incidents').textContent = ov.activeIncidents;
 
     const hs = ov.systemHealth ?? 100;
     const hEl = $('ov_health');
-    hEl.textContent = `${hs}%`;
-    hEl.style.color = hs < 60 ? 'var(--bad)' : hs < 80 ? 'var(--warn)' : 'var(--ok)';
+    if (hEl) {
+      hEl.textContent = `${hs}%`;
+      hEl.style.color = hs < 60 ? 'var(--bad)' : hs < 80 ? 'var(--warn)' : 'var(--ok)';
+    }
 
     // Render Projects Grid
     const pGrid = $('projects_grid');
-    if (ov.projects && ov.projects.length > 0) {
-      pGrid.innerHTML = ov.projects.map(p => `
-        <div class="project-card" onclick="openProject(${p.id})">
-          <h4>
-            <span>${esc(p.name)}</span>
-            <span class="badge">#${p.id}</span>
-          </h4>
-          <div class="desc">${esc(p.description || 'Monitored microservice')}</div>
-          <div class="prop-row">
-            <span style="color:var(--mut);">Base URL:</span>
-            <code>${esc(p.baseUrl || 'http://localhost:8080')}</code>
+    if (pGrid) {
+      if (ov.projects && ov.projects.length > 0) {
+        pGrid.innerHTML = ov.projects.map(p => `
+          <div class="project-card" onclick="openProject(${p.id})">
+            <h4>
+              <span>${esc(p.name)}</span>
+              <span class="badge">#${p.id}</span>
+            </h4>
+            <div class="desc">${esc(p.description || 'Monitored microservice')}</div>
+            <div class="prop-row">
+              <span style="color:var(--mut);">Base URL:</span>
+              <code>${esc(p.baseUrl || 'http://localhost:8080')}</code>
+            </div>
+            <div class="prop-row">
+              <span class="badge key" onclick="event.stopPropagation(); copyCustomKey('${esc(p.apiKey)}')">
+                Key: ${esc(p.apiKey ? p.apiKey.substring(0, 18) + '…' : 'default')} 📋
+              </span>
+            </div>
+            <div class="project-card-footer">
+              <span class="score-badge ${p.healthScore < 60 ? 'bad' : p.healthScore < 80 ? 'warn' : ''}">
+                ${p.healthScore}% HEALTH
+              </span>
+              <span style="color:var(--blue); font-weight:600; font-size:12px;">
+                ${p.monitorCount} Monitored APIs &rarr;
+              </span>
+            </div>
           </div>
-          <div class="prop-row">
-            <span class="badge key" onclick="event.stopPropagation(); copyCustomKey('${esc(p.apiKey)}')">
-              Key: ${esc(p.apiKey ? p.apiKey.substring(0, 18) + '…' : 'default')} 📋
-            </span>
+        `).join('');
+      } else {
+        // Empty state for newly registered candidates
+        pGrid.innerHTML = `
+          <div class="isolated-empty-state">
+            <div class="isolated-empty-icon">🛡️</div>
+            <h4>Zero Projects in your Workspace</h4>
+            <p>Strict project isolation is active. Projects created by other users (like the Admin's E-Commerce Backend) are private and not visible here.</p>
+            <button class="primary" onclick="$('dlg_proj').showModal()">+ Onboard Your First Project</button>
           </div>
-          <div class="project-card-footer">
-            <span class="score-badge ${p.healthScore < 60 ? 'bad' : p.healthScore < 80 ? 'warn' : ''}">
-              ${p.healthScore}% HEALTH
-            </span>
-            <span style="color:var(--blue); font-weight:600; font-size:12px;">
-              ${p.monitorCount} Monitored APIs &rarr;
-            </span>
-          </div>
-        </div>
-      `).join('');
-    } else {
-      // Empty state for newly registered candidates
-      pGrid.innerHTML = `
-        <div class="isolated-empty-state">
-          <div class="isolated-empty-icon">🛡️</div>
-          <h4>Zero Projects in your Workspace</h4>
-          <p>Strict project isolation is active. Projects created by other users (like the Admin's E-Commerce Backend) are private and not visible here.</p>
-          <button class="primary" onclick="$('dlg_proj').showModal()">+ Onboard Your First Project</button>
-        </div>
-      `;
+        `;
+      }
     }
 
     // Render All Monitored APIs Table
@@ -1359,16 +1371,18 @@ async function loadOverview() {
       } catch (e) {}
     }
 
-    $('all_apis_body').innerHTML = allMons.map(m => `
-      <tr>
-        <td><b>${esc(m.projectName)}</b></td>
-        <td><code>${esc(m.endpoint)}</code></td>
-        <td class="${esc(m.status)}">${esc(m.status)}</td>
-        <td>${m.lastLatency ?? '-'} ms</td>
-        <td>${m.avgLatency ?? '-'} ms</td>
-        <td>${m.uptime ?? '-'}%</td>
-      </tr>
-    `).join('') || '<tr><td colspan="6" style="text-align:center; color:var(--mut); padding:20px;">No active monitors configured in your projects.</td></tr>';
+    if ($('all_apis_body')) {
+      $('all_apis_body').innerHTML = allMons.map(m => `
+        <tr>
+          <td><b>${esc(m.projectName)}</b></td>
+          <td><code>${esc(m.endpoint)}</code></td>
+          <td class="${esc(m.status)}">${esc(m.status)}</td>
+          <td>${m.lastLatency ?? '-'} ms</td>
+          <td>${m.avgLatency ?? '-'} ms</td>
+          <td>${m.uptime ?? '-'}%</td>
+        </tr>
+      `).join('') || '<tr><td colspan="6" style="text-align:center; color:var(--mut); padding:20px;">No active monitors configured in your projects.</td></tr>';
+    }
 
   } catch (e) {
     console.error('Error loading overview:', e);
@@ -1380,16 +1394,16 @@ async function loadOverview() {
    ========================================================== */
 async function openProject(id) {
   curId = id; tab = 0; chart?.destroy(); chart = null;
-  $('view_overview').style.display = 'none';
-  $('view_project').style.display = 'grid';
-  $('top_project_info').style.display = 'flex';
+  if ($('view_overview')) $('view_overview').style.display = 'none';
+  if ($('view_project')) $('view_project').style.display = 'grid';
+  if ($('top_project_info')) $('top_project_info').style.display = 'flex';
 
   try {
     curProj = await j(`${API}/projects/${id}`);
-    $('dock_proj_name').textContent = curProj.name;
-    $('nav_current_view').textContent = curProj.name;
-    $('pid_badge').textContent = `ID #${curProj.id}`;
-    $('pkey_badge').textContent = `Key: ${curProj.apiKey ? curProj.apiKey.substring(0, 16) + '…' : 'default'} 📋`;
+    if ($('dock_proj_name')) $('dock_proj_name').textContent = curProj.name;
+    if ($('nav_current_view')) $('nav_current_view').textContent = curProj.name;
+    if ($('pid_badge')) $('pid_badge').textContent = `ID #${curProj.id}`;
+    if ($('pkey_badge')) $('pkey_badge').textContent = `Key: ${curProj.apiKey ? curProj.apiKey.substring(0, 16) + '…' : 'default'} 📋`;
   } catch (e) {
     alert('Cannot open project: ' + e.message);
     goHome();
@@ -1399,13 +1413,15 @@ async function openProject(id) {
   // Load Source Tree
   let files = [];
   try { files = await j(`${API}/projects/${id}/files`); } catch (e) {}
-  $('tree').innerHTML = files.length ? renderTree(buildTree(files)) : '<small style="color:var(--mut);">No source files found in sourcePath.</small>';
-  $('editor').innerHTML = `
-    <div id="welcome">
-      <h3 style="color:#fff; margin-top:0;">${esc(curProj ? curProj.name : 'Project #' + id)}</h3>
-      <p style="color:var(--mut);"><small>Base URL: <code>${esc(curProj?.baseUrl || '')}</code> &bull; Source Path: <code>${esc(curProj?.sourcePath || '')}</code></small></p>
-      <p style="color:var(--tx);"><small>Explore the 5 SRE sections below: <b>Health &amp; Telemetry</b>, <b>Interactive API Testing</b>, <b>AI Anomalies (Isolation Forest)</b>, <b>AI Root Cause Localization</b>, and <b>AI Code Fix &amp; Patch</b>.</small></p>
-    </div>`;
+  if ($('tree')) $('tree').innerHTML = files.length ? renderTree(buildTree(files)) : '<small style="color:var(--mut);">No source files found in sourcePath.</small>';
+  if ($('editor')) {
+    $('editor').innerHTML = `
+      <div id="welcome">
+        <h3 style="color:#fff; margin-top:0;" id="dock_proj_name">${esc(curProj ? curProj.name : 'Project #' + id)}</h3>
+        <p style="color:var(--mut);"><small>Base URL: <code>${esc(curProj?.baseUrl || '')}</code> &bull; Source Path: <code>${esc(curProj?.sourcePath || '')}</code></small></p>
+        <p style="color:var(--tx);"><small>Explore the 5 SRE sections below: <b>Health &amp; Telemetry</b>, <b>Interactive API Testing</b>, <b>AI Anomalies (Isolation Forest)</b>, <b>AI Root Cause Localization</b>, and <b>AI Code Fix &amp; Patch</b>.</small></p>
+      </div>`;
+  }
 
   poll();
 }
@@ -1471,18 +1487,22 @@ async function poll() {
   }
 
   // Update left sidebar API list
-  $('ep_list').innerHTML = mons.map(m => `
-    <div class="item" style="display:flex; justify-content:space-between; align-items:center;">
-      <span style="overflow:hidden; text-overflow:ellipsis;" title="${esc(m.endpoint)}">${esc(m.name)}</span>
-      <span class="${esc(m.status)}">${esc(m.status)}</span>
-    </div>
-  `).join('') || '<small style="color:var(--mut);">No APIs configured</small>';
+  if ($('ep_list')) {
+    $('ep_list').innerHTML = mons.map(m => `
+      <div class="item" style="display:flex; justify-content:space-between; align-items:center;">
+        <span style="overflow:hidden; text-overflow:ellipsis;" title="${esc(m.endpoint)}">${esc(m.name)}</span>
+        <span class="${esc(m.status)}">${esc(m.status)}</span>
+      </div>
+    `).join('') || '<small style="color:var(--mut);">No APIs configured</small>';
+  }
 
   // Update Project Health score badge
   const score = computeProjectHealth(mons, aiIncidents);
   const hs = $('hscore');
-  hs.textContent = `${score}% HEALTH`;
-  hs.className = 'score-badge' + (score < 60 ? ' bad' : score < 80 ? ' warn' : '');
+  if (hs) {
+    hs.textContent = `${score}% HEALTH`;
+    hs.className = 'score-badge' + (score < 60 ? ' bad' : score < 80 ? ' warn' : '');
+  }
 
   if (id == curId) drawTabs();
 }
@@ -1697,12 +1717,14 @@ async function toggleSimulatedFault() {
     const r = await j('/api/demo/payment/toggle-fault', { method: 'POST' });
     faultActive = r.paymentFaultActive;
     const btn = $('btn_toggle_fault');
-    if (faultActive) {
-      btn.className = 'danger sm';
-      btn.textContent = '⚡ Clear Fault (Payment 500 Active)';
-    } else {
-      btn.className = 'warn sm';
-      btn.textContent = '⚡ Simulate 500 Fault';
+    if (btn) {
+      if (faultActive) {
+        btn.className = 'danger sm';
+        btn.textContent = '⚡ Clear Fault (Payment 500 Active)';
+      } else {
+        btn.className = 'warn sm';
+        btn.textContent = '⚡ Simulate 500 Fault';
+      }
     }
     alert(r.message);
     poll();
